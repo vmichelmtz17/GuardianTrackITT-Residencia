@@ -2,7 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".Contacto">
 
     <EditText
         android:id="@+id/editTextNombre"
@@ -14,7 +16,8 @@
         android:id="@+id/editTextNumero"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Número" />
+        android:hint="Número"
+        android:inputType="number" />
 
     <Button
         android:id="@+id/buttonAgregar"
@@ -25,6 +28,7 @@
     <ListView
         android:id="@+id/listViewContactos"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>
