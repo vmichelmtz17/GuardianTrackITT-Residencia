@@ -4,8 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -66,7 +69,7 @@ public class Contacto extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ContactoModel contacto = (ContactoModel) parent.getItemAtPosition(position);
-                mostrarDialogEditarEliminarContacto(contacto);
+                mostrarDialogContacto(contacto);
             }
         });
 
@@ -102,15 +105,14 @@ public class Contacto extends AppCompatActivity {
         }
     }
 
-    private void mostrarDialogEditarEliminarContacto(final ContactoModel contacto) {
+    private void mostrarDialogContacto(final ContactoModel contacto) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setTitle("Editar o eliminar contacto");
+        dialogBuilder.setTitle("Editar, eliminar o abrir en WhatsApp");
         dialogBuilder.setMessage("¿Qué acción deseas realizar?");
 
         SpannableString editarOption = new SpannableString("Editar");
         editarOption.setSpan(new ForegroundColorSpan(Color.BLUE), 0, editarOption.length(), 0);
         dialogBuilder.setPositiveButton(editarOption, new DialogInterface.OnClickListener() {
-
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 mostrarDialogEditarContacto(contacto);
@@ -126,10 +128,29 @@ public class Contacto extends AppCompatActivity {
             }
         });
 
+        SpannableString whatsappOption = new SpannableString("Abrir en WhatsApp");
+        whatsappOption.setSpan(new ForegroundColorSpan(Color.GREEN), 0, whatsappOption.length(), 0);
+        dialogBuilder.setNeutralButton(whatsappOption, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                abrirChatWhatsApp(contacto.getNumero());
+            }
+        });
+
         AlertDialog dialog = dialogBuilder.create();
         dialog.show();
     }
 
+    private void abrirChatWhatsApp(String numero) {
+        try {
+            String url = "https://api.whatsapp.com/send?phone=" + numero;
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(url));
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "WhatsApp no está instalado en tu dispositivo", Toast.LENGTH_SHORT).show();
+        }
+    }
     private void mostrarDialogEditarContacto(final ContactoModel contacto) {
         try {
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
