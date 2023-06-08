@@ -59,10 +59,20 @@ public class Contacto extends AppCompatActivity {
                 String nombre = editTextNombre.getText().toString();
                 String numero = editTextNumero.getText().toString();
 
-                guardarContactoEnFirebase(nombre, numero);
+                // Validar que ambos campos estén completos
+                if (!nombre.isEmpty() && !numero.isEmpty()) {
+                    // Validar que el número tenga exactamente 10 dígitos
+                    if (numero.length() == 10) {
+                        guardarContactoEnFirebase(nombre, numero);
 
-                editTextNombre.setText("");
-                editTextNumero.setText("");
+                        editTextNombre.setText("");
+                        editTextNumero.setText("");
+                    } else {
+                        Toast.makeText(Contacto.this, "El número debe tener 10 dígitos", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(Contacto.this, "Completa ambos campos", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -84,9 +94,13 @@ public class Contacto extends AppCompatActivity {
 
         mostrarContactosDesdeFirebase();
     }
-
     private void mostrarMensajeTemporal() {
-        Toast.makeText(this, "Selecciona un contacto para realizar acciones", Toast.LENGTH_SHORT).show();
+        String numero = editTextNumero.getText().toString();
+        if (numero.length() == 10) {
+            Toast.makeText(this, "Selecciona un contacto para realizar acciones", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Selecciona un contacto para realizar acciones \n El número debe tener 10 dígitos", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -113,11 +127,13 @@ public class Contacto extends AppCompatActivity {
 
     private void guardarContactoEnFirebase(String nombre, String numero) {
         String contactoId = contactosRef.push().getKey();
-        ContactoModel contacto = new ContactoModel(contactoId, nombre, numero);
+        String numeroCompleto = "+52" + numero; // Agregar el prefijo "+52" al número de teléfono
+        ContactoModel contacto = new ContactoModel(contactoId, nombre, numeroCompleto);
         if (contactoId != null) {
             contactosRef.child(contactoId).setValue(contacto);
         }
     }
+
 
     private void mostrarDialogContacto(final ContactoModel contacto) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);

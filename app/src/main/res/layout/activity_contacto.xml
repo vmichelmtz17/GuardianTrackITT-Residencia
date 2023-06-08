@@ -19,18 +19,26 @@
         android:hint="Número"
         android:inputType="number" />
 
-    <Button
-        android:id="@+id/buttonAgregar"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Agregar" />
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/buttonMensajeTemporal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ayuda" />
+        <Button
+            android:id="@+id/buttonAgregar"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Agregar" />
 
+        <Button
+            android:id="@+id/buttonMensajeTemporal"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Ayuda" />
+
+    </LinearLayout>
 
     <ListView
         android:id="@+id/listViewContactos"
