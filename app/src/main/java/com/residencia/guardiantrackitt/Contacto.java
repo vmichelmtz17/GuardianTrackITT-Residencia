@@ -21,6 +21,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,6 +38,7 @@ public class Contacto extends AppCompatActivity {
     private ListView listViewContactos;
     private DatabaseReference contactosRef;
     private ContactoAdapter contactoAdapter;
+    private FirebaseUser currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +52,7 @@ public class Contacto extends AppCompatActivity {
         Button buttonMensajeTemporal = findViewById(R.id.buttonMensajeTemporal);
 
         contactosRef = FirebaseDatabase.getInstance().getReference("contactos");
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         contactoAdapter = new ContactoAdapter(this, R.layout.item_contacto);
         listViewContactos.setAdapter(contactoAdapter);
@@ -102,35 +106,39 @@ public class Contacto extends AppCompatActivity {
             Toast.makeText(this, "Selecciona un contacto para realizar acciones \n El número debe tener 10 dígitos", Toast.LENGTH_SHORT).show();
         }
     }
-
-
     private void mostrarContactosDesdeFirebase() {
-        Query query = contactosRef.orderByKey();
-        query.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                contactoAdapter.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    ContactoModel contacto = snapshot.getValue(ContactoModel.class);
-                    if (contacto != null) {
-                        contactoAdapter.add(contacto);
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            Query query = contactosRef.child(userId).orderByKey();
+            query.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    contactoAdapter.clear();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        ContactoModel contacto = snapshot.getValue(ContactoModel.class);
+                        if (contacto != null) {
+                            contactoAdapter.add(contacto);
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Manejar el error al obtener los contactos de Firebase
-            }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Manejar el error al obtener los contactos de Firebase
+                }
+            });
+        }
     }
 
     private void guardarContactoEnFirebase(String nombre, String numero) {
-        String contactoId = contactosRef.push().getKey();
-        String numeroCompleto = "+52" + numero; // Agregar el prefijo "+52" al número de teléfono
-        ContactoModel contacto = new ContactoModel(contactoId, nombre, numeroCompleto);
-        if (contactoId != null) {
-            contactosRef.child(contactoId).setValue(contacto);
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            String contactoId = contactosRef.child(userId).push().getKey();
+            String numeroCompleto = "+52" + numero; // Agregar el prefijo "+52" al número de teléfono
+            ContactoModel contacto = new ContactoModel(contactoId, nombre, numeroCompleto);
+            if (contactoId != null) {
+                contactosRef.child(userId).child(contactoId).setValue(contacto);
+            }
         }
     }
 
