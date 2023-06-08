@@ -32,7 +32,7 @@ public class Contacto extends AppCompatActivity {
 
     private EditText editTextNombre;
     private EditText editTextNumero;
-    private Button buttonAgregar;
+    private Button buttonAgregar, buttonMensajeTemporal;
     private ListView listViewContactos;
     private DatabaseReference contactosRef;
     private ContactoAdapter contactoAdapter;
@@ -46,6 +46,7 @@ public class Contacto extends AppCompatActivity {
         editTextNumero = findViewById(R.id.editTextNumero);
         buttonAgregar = findViewById(R.id.buttonAgregar);
         listViewContactos = findViewById(R.id.listViewContactos);
+        Button buttonMensajeTemporal = findViewById(R.id.buttonMensajeTemporal);
 
         contactosRef = FirebaseDatabase.getInstance().getReference("contactos");
 
@@ -65,6 +66,14 @@ public class Contacto extends AppCompatActivity {
             }
         });
 
+        buttonMensajeTemporal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mostrarMensajeTemporal();
+            }
+        });
+
+
         listViewContactos.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -75,6 +84,11 @@ public class Contacto extends AppCompatActivity {
 
         mostrarContactosDesdeFirebase();
     }
+
+    private void mostrarMensajeTemporal() {
+        Toast.makeText(this, "Selecciona un contacto para realizar acciones", Toast.LENGTH_SHORT).show();
+    }
+
 
     private void mostrarContactosDesdeFirebase() {
         Query query = contactosRef.orderByKey();
@@ -151,6 +165,8 @@ public class Contacto extends AppCompatActivity {
             Toast.makeText(this, "WhatsApp no está instalado en tu dispositivo", Toast.LENGTH_SHORT).show();
         }
     }
+
+
     private void mostrarDialogEditarContacto(final ContactoModel contacto) {
         try {
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
