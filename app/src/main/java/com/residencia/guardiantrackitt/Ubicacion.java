@@ -14,13 +14,20 @@ import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-public class Ubicacion extends AppCompatActivity {
+public class Ubicacion extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final int PERMISSIONS_REQUEST_LOCATION = 1;
     private FusedLocationProviderClient fusedLocationClient;
     private TextView textViewLongitude;
     private TextView textViewLatitude;
+    private GoogleMap googleMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +38,11 @@ public class Ubicacion extends AppCompatActivity {
         textViewLatitude = findViewById(R.id.textViewLatitudee);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             obtenerUbicacion();
@@ -48,6 +60,12 @@ public class Ubicacion extends AppCompatActivity {
 
                     textViewLongitude.setText("Longitud: " + longitude);
                     textViewLatitude.setText("Latitud: " + latitude);
+
+                    if (googleMap != null) {
+                        LatLng latLng = new LatLng(latitude, longitude);
+                        googleMap.addMarker(new MarkerOptions().position(latLng));
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                    }
                 } else {
                     Toast.makeText(Ubicacion.this, "No se pudo obtener la ubicación", Toast.LENGTH_SHORT).show();
                 }
@@ -56,7 +74,6 @@ public class Ubicacion extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_LOCATION);
         }
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -69,5 +86,11 @@ public class Ubicacion extends AppCompatActivity {
                 Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        googleMap = map;
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
     }
 }
