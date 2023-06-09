@@ -50,4 +50,5 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-database:7.2.0'  // Firebase UI para Realtime Database (opcional)
     implementation 'com.google.android.gms:play-services-auth:20.5.0'  // Google Play Services (opcional)
     implementation 'com.github.jose-jhr:blueJhrLibrary:0.1.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
 }
