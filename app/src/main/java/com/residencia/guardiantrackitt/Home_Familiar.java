@@ -51,7 +51,7 @@ public class Home_Familiar extends AppCompatActivity implements NavigationView.O
         buttonUbicacion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Home_Familiar.this, Pulsaciones.class);
+                Intent intent = new Intent(Home_Familiar.this, Ubicacion.class);
                 startActivity(intent);
             }
         });
