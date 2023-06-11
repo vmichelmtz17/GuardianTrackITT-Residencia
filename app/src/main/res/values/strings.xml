@@ -36,6 +36,10 @@
 
     <string name="navigation_drawer_open">Abrir navegación</string>
     <string name="navigation_drawer_close">Cerrar navegación</string>
+    <string name="title_activity_paciente">Paciente</string>
+    <string name="title_home">Home</string>
+    <string name="title_photos">Fotos</string>
+    <string name="title_information">Información</string>
 
 
 </resources>
