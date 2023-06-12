@@ -40,6 +40,10 @@
     <string name="title_home">Home</string>
     <string name="title_photos">Fotos</string>
     <string name="title_information">Información</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="home_fragment">Home Fragment</string>
+    <string name="photos_fragment">Photos Fragment</string>
+    <string name="info_fragment">Information Fragment</string>
 
 
 </resources>

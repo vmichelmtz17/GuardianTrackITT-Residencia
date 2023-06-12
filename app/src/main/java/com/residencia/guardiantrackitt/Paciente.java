@@ -1,50 +1,44 @@
 package com.residencia.guardiantrackitt;
-import android.content.Intent;
+
 import android.os.Bundle;
-import android.view.MenuItem;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.residencia.guardiantrackitt.databinding.ActivityMainBinding;
 import com.residencia.guardiantrackitt.databinding.ActivityPacienteBinding;
 
 public class Paciente extends AppCompatActivity {
-
-    private ActivityPacienteBinding binding;
+    @androidx.annotation.NonNull ActivityPacienteBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityPacienteBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        remplaceFragment(new HomeFragment());
 
-        BottomNavigationView bottomNavigation = findViewById(R.id.nav_view);
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_photos, R.id.navigation_information)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_paciente);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(binding.navView, navController);
-
-        bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.navigation_photos:
-                        Intent intent = new Intent(Paciente.this, PacienteActivity.class);
-                        startActivity(intent);
-                        return true;
-                    // Agrega casos para otros elementos del Bottom Navigation si los tienes
-                }
-                return false;
+        binding.bottomNavigation.setOnItemSelectedListener(item -> {
+            switch (item.getItemId()){
+                case R.id.navigation_home:
+                    remplaceFragment(new HomeFragment());
+                    break;
+                case R.id.navigation_photos:
+                    remplaceFragment(new PhotosFragment());
+                    break;
+                case R.id.menu_informacion:
+                    remplaceFragment(new InfoFragment());
+                    break;
             }
+            return true;
         });
     }
-
+    private void remplaceFragment(Fragment fragment){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.frame_layout, fragment);
+        transaction.commit();
+    }
 }
