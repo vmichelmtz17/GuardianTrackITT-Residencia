@@ -45,5 +45,14 @@
     <string name="photos_fragment">Photos Fragment</string>
     <string name="info_fragment">Information Fragment</string>
 
+    <string name="image_description">Descripción de la imagen</string>
+    <string name="familiar_hint">Ingrese el tipo de familiar</string>
+    <string name="select_image_button">Seleccionar imagen</string>
+
+    <string name="nombre_completo">Nombre Completo</string>
+    <string name="fecha_nacimiento">Fecha de Nacimiento</string>
+    <string name="agregar_informacion">Agregar Información</string>
+    <string name="guardar">Guardar</string>
+
 
 </resources>

@@ -10,7 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
@@ -27,8 +29,8 @@ public class PhotosFragment extends Fragment {
     private String mParam2;
 
     private ImageView[] imageViews;
-
-    private int currentImageIndex = 0;
+    private EditText[] editTexts;
+    private Button selectImageButton;
 
     public PhotosFragment() {
         // Required empty public constructor
@@ -57,14 +59,14 @@ public class PhotosFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_photos, container, false);
 
-        Button selectImageButton = rootView.findViewById(R.id.selectImageButton);
         imageViews = new ImageView[5];
-        imageViews[0] = rootView.findViewById(R.id.imageView1);
-        imageViews[1] = rootView.findViewById(R.id.imageView2);
-        imageViews[2] = rootView.findViewById(R.id.imageView3);
-        imageViews[3] = rootView.findViewById(R.id.imageView4);
-        imageViews[4] = rootView.findViewById(R.id.imageView5);
+        editTexts = new EditText[5];
 
+        imageViews[0] = rootView.findViewById(R.id.imageView1);
+        editTexts[0] = rootView.findViewById(R.id.editText1);
+        // Repite lo anterior para los imageViews y editTexts restantes
+
+        selectImageButton = rootView.findViewById(R.id.selectImageButton);
         selectImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,13 +90,31 @@ public class PhotosFragment extends Fragment {
             Uri imageUri = data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
-                if (currentImageIndex < 5) {
-                    imageViews[currentImageIndex].setImageBitmap(bitmap);
-                    currentImageIndex++;
+                int selectedImageViewIndex = getSelectedImageViewIndex();
+                if (selectedImageViewIndex != -1) {
+                    imageViews[selectedImageViewIndex].setImageBitmap(bitmap);
+                    String tipoFamiliar = getTipoFamiliar(selectedImageViewIndex);
+                    editTexts[selectedImageViewIndex].setText(tipoFamiliar);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private int getSelectedImageViewIndex() {
+        for (int i = 0; i < imageViews.length; i++) {
+            if (imageViews[i] != null && imageViews[i].getDrawable() == null) {
+                return i;
+            }
+        }
+        return -1; // Si no hay ImageView disponible, devuelve -1
+    }
+
+    private String getTipoFamiliar(int index) {
+        if (editTexts[index] != null) {
+            return editTexts[index].getText().toString();
+        }
+        return "";
     }
 }
