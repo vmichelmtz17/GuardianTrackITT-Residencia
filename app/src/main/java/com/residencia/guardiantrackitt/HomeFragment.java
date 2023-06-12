@@ -16,10 +16,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
 public class HomeFragment extends Fragment {
 
     private TextView nombreTextView;
     private TextView fechaNacimientoTextView;
+    private TextView edadTextView;
     private DatabaseReference pacienteRef;
 
     public HomeFragment() {
@@ -40,6 +46,7 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         nombreTextView = view.findViewById(R.id.nombreTextView);
         fechaNacimientoTextView = view.findViewById(R.id.fechaNacimientoTextView);
+        edadTextView = view.findViewById(R.id.edadTextView);
         return view;
     }
 
@@ -56,8 +63,13 @@ public class HomeFragment extends Fragment {
                         String nombre = snapshot.child("nombre").getValue(String.class);
                         String fechaNacimiento = snapshot.child("fechaNacimiento").getValue(String.class);
                         // Actualizar la interfaz de usuario con los datos del paciente
-                        nombreTextView.setText(nombre);
-                        fechaNacimientoTextView.setText(fechaNacimiento);
+                        nombreTextView.setText("Nombre: " + nombre);
+                        fechaNacimientoTextView.setText("Fecha de Nacimiento: " + fechaNacimiento);
+
+                        // Calcular la edad actual
+                        int edad = calcularEdad(fechaNacimiento);
+                        edadTextView.setText(String.valueOf("Edad actual: " + edad));
+
                         // Mostrar solo los datos del primer paciente encontrado
                         break;
                     }
@@ -69,5 +81,30 @@ public class HomeFragment extends Fragment {
                 // Manejar el error de la base de datos si es necesario
             }
         });
+    }
+
+    private int calcularEdad(String fechaNacimiento) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        try {
+            Date fechaNac = dateFormat.parse(fechaNacimiento);
+            Calendar calendarNac = Calendar.getInstance();
+            calendarNac.setTime(fechaNac);
+
+            Calendar calendarActual = Calendar.getInstance();
+            int diffYear = calendarActual.get(Calendar.YEAR) - calendarNac.get(Calendar.YEAR);
+            int diffMonth = calendarActual.get(Calendar.MONTH) - calendarNac.get(Calendar.MONTH);
+            int diffDay = calendarActual.get(Calendar.DAY_OF_MONTH) - calendarNac.get(Calendar.DAY_OF_MONTH);
+
+            // Ajustar la edad si aún no se ha cumplido el mes o el día de nacimiento
+            if (diffMonth < 0 || (diffMonth == 0 && diffDay < 0)) {
+                diffYear--;
+            }
+
+            return diffYear;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
     }
 }
