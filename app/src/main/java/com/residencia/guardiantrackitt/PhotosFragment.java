@@ -26,7 +26,9 @@ public class PhotosFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private ImageView selectedImageView;
+    private ImageView[] imageViews;
+
+    private int currentImageIndex = 0;
 
     public PhotosFragment() {
         // Required empty public constructor
@@ -56,7 +58,12 @@ public class PhotosFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_photos, container, false);
 
         Button selectImageButton = rootView.findViewById(R.id.selectImageButton);
-        selectedImageView = rootView.findViewById(R.id.selectedImageView);
+        imageViews = new ImageView[5];
+        imageViews[0] = rootView.findViewById(R.id.imageView1);
+        imageViews[1] = rootView.findViewById(R.id.imageView2);
+        imageViews[2] = rootView.findViewById(R.id.imageView3);
+        imageViews[3] = rootView.findViewById(R.id.imageView4);
+        imageViews[4] = rootView.findViewById(R.id.imageView5);
 
         selectImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,7 +88,10 @@ public class PhotosFragment extends Fragment {
             Uri imageUri = data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
-                selectedImageView.setImageBitmap(bitmap);
+                if (currentImageIndex < 5) {
+                    imageViews[currentImageIndex].setImageBitmap(bitmap);
+                    currentImageIndex++;
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
