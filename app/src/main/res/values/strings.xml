@@ -49,10 +49,10 @@
     <string name="familiar_hint">Ingrese el tipo de familiar</string>
     <string name="select_image_button">Seleccionar imagen</string>
 
-    <string name="nombre_completo">Nombre Completo</string>
-    <string name="fecha_nacimiento">Fecha de Nacimiento</string>
-    <string name="agregar_informacion">Agregar Información</string>
-    <string name="guardar">Guardar</string>
+    <string name="nombre_label">Nombre</string>
+    <string name="fecha_nacimiento_label">Fecha de Nacimiento</string>
+    <string name="agregar_informacion_button">Agregar Información</string>
+    <string name="guardar_button">Guardar</string>
 
 
 </resources>

@@ -17,12 +17,16 @@ public class InfoFragment extends Fragment {
     private Button buttonAgregarInformacion;
     private Button buttonGuardar;
 
+    private PacienteModel pacienteModel;
+
     public InfoFragment() {
         // Required empty public constructor
     }
 
-    public static InfoFragment newInstance() {
-        return new InfoFragment();
+    public static InfoFragment newInstance(PacienteModel pacienteModel) {
+        InfoFragment fragment = new InfoFragment();
+        fragment.pacienteModel = pacienteModel;
+        return fragment;
     }
 
     @Override
@@ -34,6 +38,14 @@ public class InfoFragment extends Fragment {
         editTextFechaNacimiento = view.findViewById(R.id.editTextFechaNacimiento);
         buttonAgregarInformacion = view.findViewById(R.id.buttonAgregarInformacion);
         buttonGuardar = view.findViewById(R.id.buttonGuardar);
+
+        // Establecer los datos del paciente en los EditText
+        if (pacienteModel != null) {
+            editTextNombre.setText(pacienteModel.getNombre());
+            editTextFechaNacimiento.setText(pacienteModel.getFechaNacimiento());
+            editTextNombre.setEnabled(false);
+            editTextFechaNacimiento.setEnabled(false);
+        }
 
         buttonAgregarInformacion.setOnClickListener(new View.OnClickListener() {
             @Override

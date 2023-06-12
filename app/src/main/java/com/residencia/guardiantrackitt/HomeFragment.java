@@ -30,7 +30,7 @@ public class HomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Obtener referencia al nodo del paciente en la base de datos
-        pacienteRef = FirebaseDatabase.getInstance().getReference().child("paciente");
+        pacienteRef = FirebaseDatabase.getInstance().getReference().child("pacientes");
     }
 
     @Override
@@ -51,11 +51,16 @@ public class HomeFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    String nombre = dataSnapshot.child("nombre").getValue(String.class);
-                    String fechaNacimiento = dataSnapshot.child("fechaNacimiento").getValue(String.class);
-                    // Actualizar la interfaz de usuario con los datos del paciente
-                    nombreTextView.setText(nombre);
-                    fechaNacimientoTextView.setText(fechaNacimiento);
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        // Obtener los datos del paciente
+                        String nombre = snapshot.child("nombre").getValue(String.class);
+                        String fechaNacimiento = snapshot.child("fechaNacimiento").getValue(String.class);
+                        // Actualizar la interfaz de usuario con los datos del paciente
+                        nombreTextView.setText(nombre);
+                        fechaNacimientoTextView.setText(fechaNacimiento);
+                        // Mostrar solo los datos del primer paciente encontrado
+                        break;
+                    }
                 }
             }
 

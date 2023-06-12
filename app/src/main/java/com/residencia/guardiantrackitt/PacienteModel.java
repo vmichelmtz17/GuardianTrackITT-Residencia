@@ -5,7 +5,7 @@ public class PacienteModel {
     private String fechaNacimiento;
 
     public PacienteModel() {
-        // Constructor vacío requerido para Firebase
+        // Constructor vacío necesario para Firebase
     }
 
     public PacienteModel(String nombre, String fechaNacimiento) {

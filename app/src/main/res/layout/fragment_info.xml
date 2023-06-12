@@ -7,42 +7,48 @@
     tools:context=".InfoFragment">
 
     <TextView
+        android:id="@+id/textViewNombre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/nombre_completo" />
+        android:text="@string/nombre_label"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp" />
 
     <EditText
         android:id="@+id/editTextNombre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:inputType="text"
         android:enabled="false"
-        android:maxLines="1" />
+        android:layout_marginBottom="16dp" />
 
     <TextView
+        android:id="@+id/textViewFechaNacimiento"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/fecha_nacimiento" />
+        android:text="@string/fecha_nacimiento_label"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp" />
 
     <EditText
         android:id="@+id/editTextFechaNacimiento"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:inputType="date"
         android:enabled="false"
-        android:maxLines="1" />
+        android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/buttonAgregarInformacion"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/agregar_informacion" />
+        android:text="@string/agregar_informacion_button"
+        android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/buttonGuardar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/guardar" />
+        android:text="@string/guardar_button" />
 
 </LinearLayout>
