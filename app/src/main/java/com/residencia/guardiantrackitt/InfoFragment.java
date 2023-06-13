@@ -8,6 +8,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 public class InfoFragment extends Fragment {
 
     private EditText editTextNombre;
@@ -43,6 +49,9 @@ public class InfoFragment extends Fragment {
             editTextFechaNacimiento.setText(pacienteModel.getFechaNacimiento());
             editTextNombre.setEnabled(false);
             editTextFechaNacimiento.setEnabled(false);
+        } else {
+            // Obtén el último nombre y fecha de nacimiento registrados desde Firebase
+            obtenerUltimosDatosRegistrados();
         }
 
         buttonAgregarInformacion.setOnClickListener(new View.OnClickListener() {
@@ -70,5 +79,31 @@ public class InfoFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void obtenerUltimosDatosRegistrados() {
+        // Obtén una referencia a la base de datos de Firebase
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference pacientesRef = database.getReference("pacientes");
+
+        // Realiza una consulta para obtener el último paciente registrado
+        pacientesRef.orderByKey().limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    PacienteModel paciente = snapshot.getValue(PacienteModel.class);
+                    if (paciente != null) {
+                        editTextNombre.setText(paciente.getNombre());
+                        editTextFechaNacimiento.setText(paciente.getFechaNacimiento());
+                    }
+                    break;
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Manejo de errores de la consulta
+            }
+        });
     }
 }

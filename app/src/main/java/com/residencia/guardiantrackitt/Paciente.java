@@ -9,10 +9,13 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.residencia.guardiantrackitt.databinding.ActivityPacienteBinding;
 
@@ -55,34 +58,35 @@ public class Paciente extends AppCompatActivity {
     }
 
     private void obtenerPacienteId() {
-        // Obtén una referencia a la base de datos de Firebase
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference pacientesRef = database.getReference("pacientes");
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String userId = user.getUid();
 
-        // Realiza una consulta a la base de datos para obtener el ID del paciente actual
-        pacientesRef.orderByKey().limitToFirst(1).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    pacienteId = snapshot.getKey();
-                    break;
+            // Obtén una referencia a la base de datos de Firebase
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference pacientesRef = database.getReference("pacientes");
+
+            // Realiza una consulta a la base de datos para obtener el paciente del usuario actual
+            Query query = pacientesRef.orderByChild("userId").equalTo(userId).limitToFirst(1);
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        // Paciente registrado, obtener el ID del paciente
+                        pacienteId = dataSnapshot.getChildren().iterator().next().getKey();
+                        abrirHomeFragment();
+                    } else {
+                        // No hay paciente registrado para el usuario actual
+                        abrirInfoFragment();
+                    }
                 }
 
-                // Abre el fragmento correspondiente según la existencia del paciente
-                if (pacienteId != null) {
-                    // Paciente registrado, abrir HomeFragment
-                    abrirHomeFragment();
-                } else {
-                    // No hay paciente registrado, abrir InfoFragment para registrar uno
-                    abrirInfoFragment();
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Manejo de errores de la consulta
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Manejo de errores de la consulta
-            }
-        });
+            });
+        }
     }
 
     private void abrirHomeFragment() {
@@ -105,22 +109,27 @@ public class Paciente extends AppCompatActivity {
     }
 
     public void guardarDatosPaciente(String nombre, String fechaNacimiento) {
-        // Obtén una referencia a la base de datos de Firebase
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference pacientesRef = database.getReference("pacientes");
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String userId = user.getUid();
 
-        // Crea un nuevo objeto PacienteModel
-        PacienteModel paciente = new PacienteModel(nombre, fechaNacimiento);
+            // Obtén una referencia a la base de datos de Firebase
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference pacientesRef = database.getReference("pacientes");
 
-        // Si el ID del paciente actual es nulo, genera uno nuevo
-        if (pacienteId == null) {
-            pacienteId = pacientesRef.push().getKey();
+            // Crea un nuevo objeto PacienteModel
+            PacienteModel paciente = new PacienteModel(userId, nombre, fechaNacimiento);
+
+            // Si el ID del paciente actual es nulo, genera uno nuevo
+            if (pacienteId == null) {
+                pacienteId = pacientesRef.push().getKey();
+            }
+
+            // Guarda los datos del paciente en la ubicación correspondiente en la base de datos
+            pacientesRef.child(pacienteId).setValue(paciente);
+
+            // Después de guardar los datos, abrir el HomeFragment
+            abrirHomeFragment();
         }
-
-        // Guarda los datos del paciente en la ubicación correspondiente en la base de datos
-        pacientesRef.child(pacienteId).setValue(paciente);
-
-        // Después de guardar los datos, abrir el HomeFragment
-        abrirHomeFragment();
     }
 }
