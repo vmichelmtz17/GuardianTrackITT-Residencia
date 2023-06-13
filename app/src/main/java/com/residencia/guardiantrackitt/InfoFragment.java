@@ -18,7 +18,6 @@ public class InfoFragment extends Fragment {
 
     private EditText editTextNombre;
     private EditText editTextFechaNacimiento;
-    private Button buttonAgregarInformacion;
     private Button buttonGuardar;
 
     private PacienteModel pacienteModel;
@@ -40,7 +39,6 @@ public class InfoFragment extends Fragment {
 
         editTextNombre = view.findViewById(R.id.editTextNombre);
         editTextFechaNacimiento = view.findViewById(R.id.editTextFechaNacimiento);
-        buttonAgregarInformacion = view.findViewById(R.id.buttonAgregarInformacion);
         buttonGuardar = view.findViewById(R.id.buttonGuardar);
 
         // Establecer los datos del paciente en los EditText
@@ -49,32 +47,37 @@ public class InfoFragment extends Fragment {
             editTextFechaNacimiento.setText(pacienteModel.getFechaNacimiento());
             editTextNombre.setEnabled(false);
             editTextFechaNacimiento.setEnabled(false);
+            buttonGuardar.setText("Editar Información");
         } else {
             // Obtén el último nombre y fecha de nacimiento registrados desde Firebase
             obtenerUltimosDatosRegistrados();
+            buttonGuardar.setText("Agregar Información");
         }
-
-        buttonAgregarInformacion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                editTextNombre.setEnabled(true);
-                editTextFechaNacimiento.setEnabled(true);
-            }
-        });
 
         buttonGuardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String nombre = editTextNombre.getText().toString();
-                String fechaNacimiento = editTextFechaNacimiento.getText().toString();
+                if (buttonGuardar.getText().equals("Agregar Información")) {
+                    editTextNombre.setEnabled(true);
+                    editTextFechaNacimiento.setEnabled(true);
+                    buttonGuardar.setText("Guardar Información");
+                } else if (buttonGuardar.getText().equals("Editar Información")) {
+                    editTextNombre.setEnabled(true);
+                    editTextFechaNacimiento.setEnabled(true);
+                    buttonGuardar.setText("Guardar Información");
+                } else if (buttonGuardar.getText().equals("Guardar Información")) {
+                    String nombre = editTextNombre.getText().toString();
+                    String fechaNacimiento = editTextFechaNacimiento.getText().toString();
 
-                // Llama al método de la actividad Paciente para guardar los datos en Firebase
-                if (getActivity() instanceof Paciente) {
-                    ((Paciente) getActivity()).guardarDatosPaciente(nombre, fechaNacimiento);
+                    // Llama al método de la actividad Paciente para guardar los datos en Firebase
+                    if (getActivity() instanceof Paciente) {
+                        ((Paciente) getActivity()).guardarDatosPaciente(nombre, fechaNacimiento);
+                    }
+
+                    editTextNombre.setEnabled(false);
+                    editTextFechaNacimiento.setEnabled(false);
+                    buttonGuardar.setText("Editar Información");
                 }
-
-                editTextNombre.setEnabled(false);
-                editTextFechaNacimiento.setEnabled(false);
             }
         });
 
