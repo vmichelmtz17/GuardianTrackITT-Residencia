@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -20,39 +21,37 @@ public class Paciente extends AppCompatActivity {
     ActivityPacienteBinding binding;
 
     private String pacienteId;
-    private PacienteModel pacienteModel;
+
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityPacienteBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        replaceFragment(new HomeFragment());
 
-        binding.bottomNavigation.setOnItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    replaceFragment(new HomeFragment());
-                    break;
-                case R.id.navigation_photos:
-                    replaceFragment(new PhotosFragment());
-                    break;
-                case R.id.navigation_information:
-                    replaceFragment(new InfoFragment());
-                    break;
-            }
-            return true;
-        });
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+        // Configurar el listener para el BottomNavigationView
+        bottomNavigationView.setOnNavigationItemSelectedListener(
+                item -> {
+                    switch (item.getItemId()) {
+                        case R.id.navigation_home:
+                            abrirHomeFragment();
+                            return true;
+                        case R.id.navigation_photos:
+                            abrirPhotosFragment();
+                            return true;
+                        case R.id.navigation_information:
+                            abrirInfoFragment();
+                            return true;
+                    }
+                    return false;
+                }
+        );
 
         // Obtén el ID del paciente desde Firebase
         obtenerPacienteId();
-    }
-
-    private void replaceFragment(Fragment fragment) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.frame_layout, fragment);
-        transaction.commit();
     }
 
     private void obtenerPacienteId() {
@@ -69,8 +68,14 @@ public class Paciente extends AppCompatActivity {
                     break;
                 }
 
-                // Obtén los datos del paciente actual
-                obtenerDatosPaciente();
+                // Abre el fragmento correspondiente según la existencia del paciente
+                if (pacienteId != null) {
+                    // Paciente registrado, abrir HomeFragment
+                    abrirHomeFragment();
+                } else {
+                    // No hay paciente registrado, abrir InfoFragment para registrar uno
+                    abrirInfoFragment();
+                }
             }
 
             @Override
@@ -80,29 +85,23 @@ public class Paciente extends AppCompatActivity {
         });
     }
 
-    private void obtenerDatosPaciente() {
-        // Obtén una referencia a la base de datos de Firebase
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference pacientesRef = database.getReference("pacientes").child(pacienteId);
+    private void abrirHomeFragment() {
+        replaceFragment(new HomeFragment());
+    }
 
-        // Realiza una consulta a la base de datos para obtener los datos del paciente actual
-        pacientesRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    pacienteModel = dataSnapshot.getValue(PacienteModel.class);
+    private void abrirPhotosFragment() {
+        replaceFragment(new PhotosFragment());
+    }
 
-                    // Pasa el objeto PacienteModel al fragmento de información
-                    Fragment infoFragment = InfoFragment.newInstance(pacienteModel);
-                    replaceFragment(infoFragment);
-                }
-            }
+    private void abrirInfoFragment() {
+        replaceFragment(new InfoFragment());
+    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Manejo de errores de la consulta
-            }
-        });
+    private void replaceFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.frame_layout, fragment);
+        transaction.commit();
     }
 
     public void guardarDatosPaciente(String nombre, String fechaNacimiento) {
@@ -120,5 +119,8 @@ public class Paciente extends AppCompatActivity {
 
         // Guarda los datos del paciente en la ubicación correspondiente en la base de datos
         pacientesRef.child(pacienteId).setValue(paciente);
+
+        // Después de guardar los datos, abrir el HomeFragment
+        abrirHomeFragment();
     }
 }
