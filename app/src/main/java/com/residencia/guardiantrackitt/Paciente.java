@@ -42,6 +42,9 @@ public class Paciente extends AppCompatActivity {
                         case R.id.navigation_home:
                             abrirHomeFragment();
                             return true;
+                        case R.id.navigation_maps:
+                            abrirMapsFragment();
+                            return true;
                         case R.id.navigation_photos:
                             abrirPhotosFragment();
                             return true;
@@ -99,6 +102,9 @@ public class Paciente extends AppCompatActivity {
 
     private void abrirInfoFragment() {
         replaceFragment(new InfoFragment());
+    }
+    private void abrirMapsFragment() {
+        replaceFragment(new MapsFragment());
     }
 
     private void replaceFragment(Fragment fragment) {
