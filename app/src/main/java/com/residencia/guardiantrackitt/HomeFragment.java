@@ -1,15 +1,18 @@
 package com.residencia.guardiantrackitt;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -47,6 +50,13 @@ public class HomeFragment extends Fragment {
         nombreTextView = view.findViewById(R.id.nombreTextView);
         fechaNacimientoTextView = view.findViewById(R.id.fechaNacimientoTextView);
         edadTextView = view.findViewById(R.id.edadTextView);
+        Button btnCerrarSesion = view.findViewById(R.id.btnCerrarSesion);
+        btnCerrarSesion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cerrarSesion();
+            }
+        });
         return view;
     }
 
@@ -81,6 +91,15 @@ public class HomeFragment extends Fragment {
                 // Manejar el error de la base de datos si es necesario
             }
         });
+    }
+
+    private void cerrarSesion() {
+        // Cerrar sesión en Firebase
+        FirebaseAuth.getInstance().signOut();
+
+        // Redirigir a la clase MainActivity
+        startActivity(new Intent(getActivity(), MainActivity.class));
+        getActivity().finish();
     }
 
     private int calcularEdad(String fechaNacimiento) {
