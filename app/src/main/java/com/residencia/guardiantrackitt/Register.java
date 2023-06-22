@@ -124,8 +124,8 @@ public class Register extends AppCompatActivity {
                                                     if (userType.equals("Familiar")) {
                                                         Intent intent = new Intent(Register.this, Home_Familiar.class);
                                                         startActivity(intent);
-                                                    } else if (userType.equals("Profesional")) {
-                                                        Intent intent = new Intent(Register.this, Home_Profesional.class);
+                                                    } else if (userType.equals("Paciente")) {
+                                                        Intent intent = new Intent(Register.this, Paciente.class);
                                                         startActivity(intent);
                                                     }
                                                     finish();
