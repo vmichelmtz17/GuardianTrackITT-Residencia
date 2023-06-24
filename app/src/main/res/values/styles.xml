@@ -15,4 +15,10 @@
     <style name="AppButtonStyle" parent="Widget.AppCompat.Button">
         <item name="android:textColor">@color/white</item>
     </style>
+    <style name="MinimalButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/minimal_button_background</item>
+        <item name="android:textColor">@color/minimal_button_text_color</item>
+        <item name="android:textSize">14sp</item>
+        <!-- Agrega otros atributos personalizados según tus necesidades -->
+    </style>
 </resources>

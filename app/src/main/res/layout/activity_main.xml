@@ -11,33 +11,44 @@
 
     <Button
         android:id="@+id/loginButton"
-        android:layout_width="match_parent"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:text="Login" />
+        android:layout_centerHorizontal="true"
+        android:text="Login"
+        style="@style/MinimalButtonStyle" />
 
     <Button
         android:id="@+id/registerButton"
-        android:layout_width="match_parent"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_below="@id/loginButton"
-        android:text="Register" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="Register"
+        style="@style/MinimalButtonStyle" />
 
     <Button
         android:id="@+id/websiteButton"
-        android:layout_width="match_parent"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_below="@id/registerButton"
         android:layout_centerVertical="true"
-        android:text="Pagina Web" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="Pagina Web"
+        style="@style/MinimalButtonStyle" />
 
     <Button
         android:id="@+id/aboutButton"
-        android:layout_width="match_parent"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_below="@id/websiteButton"
         android:layout_centerVertical="true"
-        android:text="Sobre Nosotros" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="Sobre Nosotros"
+        style="@style/MinimalButtonStyle" />
 
     <ImageView
         android:id="@+id/imageView"

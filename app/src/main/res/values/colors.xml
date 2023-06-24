@@ -11,4 +11,6 @@
     <color name="teal_700">#018786</color>
     <color name="purple_200">#BB86FC</color>
     <color name="red">#FF0000</color>
+    <color name="minimal_button_background_color">#ECECEC</color>
+    <color name="minimal_button_text_color">#333333</color>
 </resources>
