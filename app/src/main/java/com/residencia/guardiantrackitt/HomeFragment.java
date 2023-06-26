@@ -1,5 +1,6 @@
 package com.residencia.guardiantrackitt;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,9 +51,11 @@ public class HomeFragment extends Fragment {
             public void onClick(View v) {
                 mAuth.signOut();
                 // Redirigir a la actividad de inicio de sesión
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Limpia la pila de actividades
+                startActivity(intent);
             }
         });
-
         return view;
     }
 
