@@ -67,7 +67,7 @@ public class Paciente extends AppCompatActivity {
 
             // Obtén una referencia a la base de datos de Firebase
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference pacientesRef = database.getReference("pacientes");
+            DatabaseReference pacientesRef = database.getReference("Paciente");
 
             // Realiza una consulta a la base de datos para obtener el paciente del usuario actual
             Query query = pacientesRef.orderByChild("userId").equalTo(userId).limitToFirst(1);
@@ -121,7 +121,7 @@ public class Paciente extends AppCompatActivity {
 
             // Obtén una referencia a la base de datos de Firebase
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference pacientesRef = database.getReference("pacientes");
+            DatabaseReference pacientesRef = database.getReference("Paciente");
 
             // Crea un nuevo objeto PacienteModel
             PacienteModel paciente = new PacienteModel(userId, nombre, fechaNacimiento);

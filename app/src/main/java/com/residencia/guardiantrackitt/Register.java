@@ -1,8 +1,11 @@
 package com.residencia.guardiantrackitt;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -17,12 +20,20 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Register extends AppCompatActivity {
 
@@ -38,6 +49,7 @@ public class Register extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference userTypeRef;
     private DatabaseReference userDataRef;
+    private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +59,7 @@ public class Register extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         userTypeRef = FirebaseDatabase.getInstance().getReference().child("users").child("userType");
         userDataRef = FirebaseDatabase.getInstance().getReference().child("users").child("userData");
+        firestore = FirebaseFirestore.getInstance();
 
         nameEditText = findViewById(R.id.nameEditText);
         emailEditText = findViewById(R.id.emailEditText);
@@ -107,41 +120,69 @@ public class Register extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Registro exitoso, guardar el tipo de usuario en Realtime Database
                             FirebaseUser currentUser = mAuth.getCurrentUser();
                             if (currentUser != null) {
-                                userTypeRef.child(currentUser.getUid()).setValue(userType)
-                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if (task.isSuccessful()) {
-                                                    // Guardar campos adicionales en Realtime Database
-                                                    DatabaseReference userRef = userDataRef.child(currentUser.getUid());
-                                                    userRef.child("name").setValue(name);
-                                                    userRef.child("phone").setValue(phone);
+                                String uid = currentUser.getUid();
 
-                                                    // Redirigir a la actividad Home correspondiente según el tipo de usuario
-                                                    if (userType.equals("Familiar")) {
-                                                        Intent intent = new Intent(Register.this, Home_Familiar.class);
-                                                        startActivity(intent);
-                                                    } else if (userType.equals("Paciente")) {
-                                                        Intent intent = new Intent(Register.this, Paciente.class);
-                                                        startActivity(intent);
-                                                    }
-                                                    finish();
-                                                } else {
-                                                    // Error al guardar el tipo de usuario en la base de datos
-                                                    // Aquí puedes manejar el caso de error de escritura de datos
-                                                }
-                                            }
-                                        });
+                                DatabaseReference userRef;
+                                if (userType.equals("Familiar")) {
+                                    userRef = userTypeRef.child("Familiar").child(uid);
+                                } else if (userType.equals("Paciente")) {
+                                    userRef = userTypeRef.child("Paciente").child(uid);
+                                } else {
+                                    // Manejar caso de userType desconocido o no válido
+                                    return;
+                                }
+
+                                userRef.setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            DatabaseReference userRef = userDataRef.child(uid);
+                                            userRef.child("name").setValue(name);
+                                            userRef.child("phone").setValue(phone);
+
+                                            DocumentReference userFirestoreRef = firestore.collection("users").document(uid);
+                                            Map<String, Object> userData = new HashMap<>();
+                                            userData.put("name", name);
+                                            userData.put("phone", phone);
+                                            userData.put("userType", userType);
+
+                                            userFirestoreRef.set(userData, SetOptions.merge())
+                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            if (task.isSuccessful()) {
+                                                                if (userType.equals("Familiar")) {
+                                                                    Intent intent = new Intent(Register.this, Home_Familiar.class);
+                                                                    startActivity(intent);
+                                                                } else if (userType.equals("Paciente")) {
+                                                                    Intent intent = new Intent(Register.this, Paciente.class);
+                                                                    startActivity(intent);
+                                                                }
+                                                                finish();
+                                                            } else {
+                                                                // Manejar caso de error al guardar los campos adicionales en Firestore
+                                                                Log.e(TAG, "Error al guardar los campos adicionales en Firestore", task.getException());
+                                                                Toast.makeText(Register.this, "Error al registrar el usuario", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        }
+                                                    });
+                                        } else {
+                                            // Manejar caso de error al guardar el tipo de usuario en la base de datos
+                                            Log.e(TAG, "Error al guardar el tipo de usuario en la base de datos", task.getException());
+                                            Toast.makeText(Register.this, "Error al registrar el usuario", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
                             }
                         } else {
                             // Error en el registro de usuario
                             // Aquí puedes manejar el caso de error de registro
+                            Log.e(TAG, "Error en el registro de usuario", task.getException());
+                            Toast.makeText(Register.this, "Error al registrar el usuario", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
-
 }
