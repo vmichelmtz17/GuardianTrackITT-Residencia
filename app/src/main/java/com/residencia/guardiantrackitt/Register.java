@@ -20,8 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -45,11 +43,13 @@ public class Register extends AppCompatActivity {
     private CheckBox showPasswordCheckbox;
     private EditText phoneEditText;
     private RadioGroup userTypeRadioGroup;
+    private RadioButton pacienteRadioButton; // Added reference to "Paciente" radio button
     private Button registerButton;
     private FirebaseAuth mAuth;
     private DatabaseReference userTypeRef;
     private DatabaseReference userDataRef;
     private FirebaseFirestore firestore;
+    private EditText dateOfBirthEditText; // Added date of birth EditText
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +69,9 @@ public class Register extends AppCompatActivity {
         showPasswordCheckbox = findViewById(R.id.showPasswordCheckbox);
         phoneEditText = findViewById(R.id.phoneEditText);
         userTypeRadioGroup = findViewById(R.id.userTypeRadioGroup);
+        pacienteRadioButton = findViewById(R.id.pacienteRadioButton); // Added reference to "Paciente" radio button
         registerButton = findViewById(R.id.registerButton);
+        dateOfBirthEditText = findViewById(R.id.dateOfBirthEditText); // Added reference to date of birth EditText
 
         showPasswordCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -93,6 +95,7 @@ public class Register extends AppCompatActivity {
                 String confirmPassword = confirmPasswordEditText.getText().toString().trim();
                 String phone = phoneEditText.getText().toString().trim();
                 int selectedUserType = userTypeRadioGroup.getCheckedRadioButtonId();
+                String dateOfBirth = dateOfBirthEditText.getText().toString().trim(); // Get the value of date of birth EditText
 
                 if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()
                         || phone.isEmpty() || selectedUserType == -1) {
@@ -103,7 +106,7 @@ public class Register extends AppCompatActivity {
                     Toast.makeText(Register.this, "La contraseña debe tener al menos 6 caracteres, una mayúscula y una minúscula", Toast.LENGTH_SHORT).show();
                 } else {
                     String userType = getUserType(selectedUserType);
-                    registerUser(name, email, password, phone, userType);
+                    registerUser(name, email, password, phone, userType, dateOfBirth); // Pass the date of birth to registerUser method
                 }
             }
         });
@@ -114,7 +117,7 @@ public class Register extends AppCompatActivity {
         return radioButton.getText().toString();
     }
 
-    private void registerUser(String name, String email, String password, String phone, final String userType) {
+    private void registerUser(String name, String email, String password, String phone, final String userType, String dateOfBirth) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -141,12 +144,19 @@ public class Register extends AppCompatActivity {
                                             DatabaseReference userRef = userDataRef.child(uid);
                                             userRef.child("name").setValue(name);
                                             userRef.child("phone").setValue(phone);
+                                            if (userType.equals("Paciente")) {
+                                                userRef.child("dateOfBirth").setValue(dateOfBirth); // Set the date of birth field in Realtime Database
+                                            }
 
                                             DocumentReference userFirestoreRef = firestore.collection("users").document(uid);
                                             Map<String, Object> userData = new HashMap<>();
                                             userData.put("name", name);
+                                            userData.put("email", email);
                                             userData.put("phone", phone);
                                             userData.put("userType", userType);
+                                            if (userType.equals("Paciente")) {
+                                                userData.put("dateOfBirth", dateOfBirth); // Set the date of birth field in Firestore
+                                            }
 
                                             userFirestoreRef.set(userData, SetOptions.merge())
                                                     .addOnCompleteListener(new OnCompleteListener<Void>() {

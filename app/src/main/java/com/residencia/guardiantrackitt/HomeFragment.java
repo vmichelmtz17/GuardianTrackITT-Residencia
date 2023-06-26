@@ -19,6 +19,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 public class HomeFragment extends Fragment {
 
     private TextView nombreTextView;
@@ -67,6 +72,12 @@ public class HomeFragment extends Fragment {
                         if (nombre != null) {
                             nombreTextView.setText("Nombre del Paciente: " + nombre);
                         }
+                        String fechaNacimiento = dataSnapshot.child("dateOfBirth").getValue(String.class);
+                        if (fechaNacimiento != null) {
+                            fechaNacimientoTextView.setText("Fecha de Nacimiento: " + fechaNacimiento);
+                            int edad = calcularEdad(fechaNacimiento);
+                            edadTextView.setText("Edad: " + edad);
+                        }
                     }
                 }
 
@@ -76,5 +87,27 @@ public class HomeFragment extends Fragment {
                 }
             });
         }
+    }
+
+    private int calcularEdad(String fechaNacimiento) {
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        try {
+            Date fechaNac = format.parse(fechaNacimiento);
+            Calendar fechaNacimientoCalendario = Calendar.getInstance();
+            fechaNacimientoCalendario.setTime(fechaNac);
+            Calendar fechaActual = Calendar.getInstance();
+
+            int edad = fechaActual.get(Calendar.YEAR) - fechaNacimientoCalendario.get(Calendar.YEAR);
+
+            if (fechaActual.get(Calendar.DAY_OF_YEAR) < fechaNacimientoCalendario.get(Calendar.DAY_OF_YEAR)) {
+                edad--;
+            }
+
+            return edad;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
     }
 }
