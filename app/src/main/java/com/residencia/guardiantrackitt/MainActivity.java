@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Abrir página web en el navegador
-                String url = "https://www.example.com";
+                String url = "https://alzheimertijuana.netlify.app/";
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(android.net.Uri.parse(url));
                 startActivity(intent);

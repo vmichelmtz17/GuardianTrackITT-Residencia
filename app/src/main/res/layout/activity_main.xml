@@ -50,12 +50,4 @@
         android:text="Sobre Nosotros"
         style="@style/MinimalButtonStyle" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="200dp"
-        android:layout_height="193dp"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-        app:srcCompat="@drawable/guardian_track_logo" />
-
 </RelativeLayout>
