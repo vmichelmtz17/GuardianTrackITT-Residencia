@@ -4,9 +4,12 @@ import static android.content.ContentValues.TAG;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +51,21 @@ public class Login extends AppCompatActivity {
         loginButton = findViewById(R.id.loginButton);
         forgotPasswordTextView = findViewById(R.id.forgotPasswordTextView);
         recoverPasswordButton = findViewById(R.id.recoverPasswordButton);
+        CheckBox showPasswordCheckbox = findViewById(R.id.showPasswordCheckbox);
+        EditText passwordEditText = findViewById(R.id.passwordEditText);
+
+        showPasswordCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Mostrar contraseña
+                    passwordEditText.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                } else {
+                    // Ocultar contraseña
+                    passwordEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                }
+            }
+        });
 
         recoverPasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override

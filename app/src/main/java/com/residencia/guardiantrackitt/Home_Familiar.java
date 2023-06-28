@@ -36,6 +36,7 @@ public class Home_Familiar extends AppCompatActivity implements NavigationView.O
         navigationView = findViewById(R.id.navigationView);
         navigationView.setNavigationItemSelectedListener(this);
 
+
         // Configurar el ActionBarDrawerToggle para abrir y cerrar el NavigationDrawer
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
@@ -43,7 +44,6 @@ public class Home_Familiar extends AppCompatActivity implements NavigationView.O
 
         // Configurar el clic de los botones en el contenido principal
         Button buttonUbicacion = findViewById(R.id.buttonUbicacion);
-        Button buttonPaciente = findViewById(R.id.buttonPaciente);
         Button buttonPaginaWeb = findViewById(R.id.buttonPaginaWeb);
         Button buttonContacto = findViewById(R.id.buttonContacto);
         Button buttonPulsaciones = findViewById(R.id.buttonPulsaciones);
@@ -52,14 +52,6 @@ public class Home_Familiar extends AppCompatActivity implements NavigationView.O
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Home_Familiar.this, Ubicacion.class);
-                startActivity(intent);
-            }
-        });
-
-        buttonPaciente.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Home_Familiar.this, Paciente.class);
                 startActivity(intent);
             }
         });
