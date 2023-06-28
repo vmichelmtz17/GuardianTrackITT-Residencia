@@ -43,13 +43,13 @@ public class Register extends AppCompatActivity {
     private CheckBox showPasswordCheckbox;
     private EditText phoneEditText;
     private RadioGroup userTypeRadioGroup;
-    private RadioButton pacienteRadioButton; // Added reference to "Paciente" radio button
+    private RadioButton pacienteRadioButton;
     private Button registerButton;
     private FirebaseAuth mAuth;
     private DatabaseReference userTypeRef;
     private DatabaseReference userDataRef;
     private FirebaseFirestore firestore;
-    private EditText dateOfBirthEditText; // Added date of birth EditText
+    private EditText dateOfBirthEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,20 +69,16 @@ public class Register extends AppCompatActivity {
         showPasswordCheckbox = findViewById(R.id.showPasswordCheckbox);
         phoneEditText = findViewById(R.id.phoneEditText);
         userTypeRadioGroup = findViewById(R.id.userTypeRadioGroup);
-        pacienteRadioButton = findViewById(R.id.pacienteRadioButton); // Added reference to "Paciente" radio button
+        pacienteRadioButton = findViewById(R.id.pacienteRadioButton);
         registerButton = findViewById(R.id.registerButton);
-        dateOfBirthEditText = findViewById(R.id.dateOfBirthEditText); // Added reference to date of birth EditText
+        dateOfBirthEditText = findViewById(R.id.dateOfBirthEditText);
 
         showPasswordCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    passwordEditText.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                    confirmPasswordEditText.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                } else {
-                    passwordEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                    confirmPasswordEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                }
+                int passwordInputType = isChecked ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
+                passwordEditText.setInputType(passwordInputType);
+                confirmPasswordEditText.setInputType(passwordInputType);
             }
         });
 
@@ -95,7 +91,7 @@ public class Register extends AppCompatActivity {
                 String confirmPassword = confirmPasswordEditText.getText().toString().trim();
                 String phone = phoneEditText.getText().toString().trim();
                 int selectedUserType = userTypeRadioGroup.getCheckedRadioButtonId();
-                String dateOfBirth = dateOfBirthEditText.getText().toString().trim(); // Get the value of date of birth EditText
+                String dateOfBirth = dateOfBirthEditText.getText().toString().trim();
 
                 if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()
                         || phone.isEmpty() || selectedUserType == -1) {
@@ -106,7 +102,7 @@ public class Register extends AppCompatActivity {
                     Toast.makeText(Register.this, "La contraseña debe tener al menos 6 caracteres, una mayúscula y una minúscula", Toast.LENGTH_SHORT).show();
                 } else {
                     String userType = getUserType(selectedUserType);
-                    registerUser(name, email, password, phone, userType, dateOfBirth); // Pass the date of birth to registerUser method
+                    registerUser(name, email, password, phone, userType, dateOfBirth);
                 }
             }
         });
@@ -133,7 +129,6 @@ public class Register extends AppCompatActivity {
                                 } else if (userType.equals("Paciente")) {
                                     userRef = userTypeRef.child("Paciente").child(uid);
                                 } else {
-                                    // Manejar caso de userType desconocido o no válido
                                     return;
                                 }
 
@@ -144,9 +139,7 @@ public class Register extends AppCompatActivity {
                                             DatabaseReference userRef = userDataRef.child(uid);
                                             userRef.child("name").setValue(name);
                                             userRef.child("phone").setValue(phone);
-                                            if (userType.equals("Paciente")) {
-                                                userRef.child("dateOfBirth").setValue(dateOfBirth); // Set the date of birth field in Realtime Database
-                                            }
+                                            userRef.child("dateOfBirth").setValue(dateOfBirth);
 
                                             DocumentReference userFirestoreRef = firestore.collection("users").document(uid);
                                             Map<String, Object> userData = new HashMap<>();
@@ -154,9 +147,7 @@ public class Register extends AppCompatActivity {
                                             userData.put("email", email);
                                             userData.put("phone", phone);
                                             userData.put("userType", userType);
-                                            if (userType.equals("Paciente")) {
-                                                userData.put("dateOfBirth", dateOfBirth); // Set the date of birth field in Firestore
-                                            }
+                                            userData.put("dateOfBirth", dateOfBirth);
 
                                             userFirestoreRef.set(userData, SetOptions.merge())
                                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -172,14 +163,12 @@ public class Register extends AppCompatActivity {
                                                                 }
                                                                 finish();
                                                             } else {
-                                                                // Manejar caso de error al guardar los campos adicionales en Firestore
                                                                 Log.e(TAG, "Error al guardar los campos adicionales en Firestore", task.getException());
                                                                 Toast.makeText(Register.this, "Error al registrar el usuario", Toast.LENGTH_SHORT).show();
                                                             }
                                                         }
                                                     });
                                         } else {
-                                            // Manejar caso de error al guardar el tipo de usuario en la base de datos
                                             Log.e(TAG, "Error al guardar el tipo de usuario en la base de datos", task.getException());
                                             Toast.makeText(Register.this, "Error al registrar el usuario", Toast.LENGTH_SHORT).show();
                                         }
@@ -187,8 +176,6 @@ public class Register extends AppCompatActivity {
                                 });
                             }
                         } else {
-                            // Error en el registro de usuario
-                            // Aquí puedes manejar el caso de error de registro
                             Log.e(TAG, "Error en el registro de usuario", task.getException());
                             Toast.makeText(Register.this, "Error al registrar el usuario", Toast.LENGTH_SHORT).show();
                         }

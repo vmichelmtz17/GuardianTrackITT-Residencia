@@ -79,7 +79,7 @@
             android:id="@+id/familiarRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Familiar / Experto" />
+            android:text="Familiar" />
 
         <RadioButton
             android:id="@+id/pacienteRadioButton"

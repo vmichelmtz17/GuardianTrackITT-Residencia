@@ -99,8 +99,8 @@ public class Login extends AppCompatActivity {
                                             if (userType != null && userType.equals("Familiar")) {
                                                 Intent intent = new Intent(Login.this, Home_Familiar.class);
                                                 startActivity(intent);
-                                            } else if (userType != null && userType.equals("Profesional")) {
-                                                Intent intent = new Intent(Login.this, Home_Profesional.class);
+                                            } else if (userType != null && userType.equals("Paciente")) {
+                                                Intent intent = new Intent(Login.this, Paciente.class);
                                                 startActivity(intent);
                                             } else {
                                                 Toast.makeText(Login.this, "Tipo de usuario inválido", Toast.LENGTH_SHORT).show();
