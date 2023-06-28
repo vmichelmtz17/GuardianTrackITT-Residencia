@@ -5,10 +5,10 @@ import static android.content.ContentValues.TAG;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,6 +30,8 @@ public class Login extends AppCompatActivity {
     private EditText emailEditText;
     private EditText passwordEditText;
     private Button loginButton;
+    private TextView forgotPasswordTextView;
+    private Button recoverPasswordButton;
     private FirebaseAuth mAuth;
     private DatabaseReference userTypeRef;
 
@@ -44,6 +46,16 @@ public class Login extends AppCompatActivity {
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
+        forgotPasswordTextView = findViewById(R.id.forgotPasswordTextView);
+        recoverPasswordButton = findViewById(R.id.recoverPasswordButton);
+
+        recoverPasswordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Login.this, Recuperacion.class);
+                startActivity(intent);
+            }
+        });
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,8 +71,6 @@ public class Login extends AppCompatActivity {
             }
         });
     }
-
-    // Dentro del método loginUser()
 
     private void loginUser(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
