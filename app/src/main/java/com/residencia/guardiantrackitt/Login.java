@@ -1,12 +1,13 @@
 package com.residencia.guardiantrackitt;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -31,8 +32,6 @@ public class Login extends AppCompatActivity {
     private Button loginButton;
     private FirebaseAuth mAuth;
     private DatabaseReference userTypeRef;
-    private CheckBox showPasswordCheckbox;
-    private Button recoverPasswordButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,19 +44,6 @@ public class Login extends AppCompatActivity {
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
-        showPasswordCheckbox = findViewById(R.id.showPasswordCheckbox);
-        recoverPasswordButton = findViewById(R.id.recoverPasswordButton);
-
-        showPasswordCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    passwordEditText.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                } else {
-                    passwordEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                }
-            }
-        });
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,22 +51,16 @@ public class Login extends AppCompatActivity {
                 String email = emailEditText.getText().toString().trim();
                 String password = passwordEditText.getText().toString().trim();
 
-                if (email.isEmpty() || password.isEmpty()) {
+                if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
                     Toast.makeText(Login.this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
                 } else {
                     loginUser(email, password);
                 }
             }
         });
-
-        recoverPasswordButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Login.this, Recuperacion.class);
-                startActivity(intent);
-            }
-        });
     }
+
+    // Dentro del método loginUser()
 
     private void loginUser(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
@@ -88,24 +68,28 @@ public class Login extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Inicio de sesión exitoso, obtener el tipo de usuario y redirigir a la actividad Home correspondiente
                             FirebaseUser currentUser = mAuth.getCurrentUser();
                             if (currentUser != null) {
-                                userTypeRef.child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                userTypeRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                         if (dataSnapshot.exists()) {
-                                            String userType = dataSnapshot.getValue(String.class);
-                                            if (userType != null && userType.equals("Familiar")) {
+                                            DataSnapshot familiarNode = dataSnapshot.child("Familiar");
+                                            DataSnapshot pacienteNode = dataSnapshot.child("Paciente");
+
+                                            if (familiarNode.hasChild(currentUser.getUid())) {
+                                                // El usuario es de tipo "Familiar"
                                                 Intent intent = new Intent(Login.this, Home_Familiar.class);
                                                 startActivity(intent);
-                                            } else if (userType != null && userType.equals("Paciente")) {
+                                                finish();
+                                            } else if (pacienteNode.hasChild(currentUser.getUid())) {
+                                                // El usuario es de tipo "Paciente"
                                                 Intent intent = new Intent(Login.this, Paciente.class);
                                                 startActivity(intent);
+                                                finish();
                                             } else {
                                                 Toast.makeText(Login.this, "Tipo de usuario inválido", Toast.LENGTH_SHORT).show();
                                             }
-                                            finish();
                                         } else {
                                             Toast.makeText(Login.this, "Tipo de usuario no encontrado", Toast.LENGTH_SHORT).show();
                                         }
