@@ -5,47 +5,69 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#14262c"
     tools:context=".Home_Familiar">
+
 
     <!-- Contenido principal -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Aquí coloca el resto de tus vistas -->
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            app:srcCompat="@drawable/ic_guardian_track" />
 
         <Button
             android:id="@+id/buttonUbicacion"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
             android:layout_centerInParent="true"
-            android:text="@string/button_ubicacion" />
+            android:text="@string/button_ubicacion"
+            android:backgroundTint="#b1accc"
+            style="@style/MinimalButtonStyle"/>
+
+        <Button android:id="@+id/buttonPulsaciones"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/buttonUbicacion"
+            android:layout_marginTop="16dp"
+            android:text="@string/button_pulsaciones"
+            android:backgroundTint="#b1accc"
+            style="@style/MinimalButtonStyle"/>
 
         <Button
             android:id="@+id/buttonPaginaWeb"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/buttonUbicacion"
+            android:layout_centerVertical="true"
+            android:layout_below="@id/buttonPulsaciones"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="16dp"
-            android:text="@string/button_pagina_web" />
+            android:text="@string/button_pagina_web"
+            android:backgroundTint="#b1accc"
+            style="@style/MinimalButtonStyle"/>
 
         <Button
             android:id="@+id/buttonContacto"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:layout_below="@id/buttonPaginaWeb"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="16dp"
-            android:text="@string/button_contacto" />
-
-        <Button android:id="@+id/buttonPulsaciones"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/buttonContacto"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="16dp"
-            android:text="@string/button_pulsaciones"/>
+            android:text="@string/button_contacto"
+            android:backgroundTint="#b1accc"
+            style="@style/MinimalButtonStyle"/>
 
 
     </RelativeLayout>

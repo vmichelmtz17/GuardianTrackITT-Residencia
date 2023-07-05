@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -50,6 +51,7 @@ public class Register extends AppCompatActivity {
     private DatabaseReference userDataRef;
     private FirebaseFirestore firestore;
     private EditText dateOfBirthEditText;
+    private ImageButton passwordInfoButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +66,6 @@ public class Register extends AppCompatActivity {
         nameEditText = findViewById(R.id.nameEditText);
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
-        passwordRequirementsTextView = findViewById(R.id.passwordRequirementsTextView);
         confirmPasswordEditText = findViewById(R.id.confirmPasswordEditText);
         showPasswordCheckbox = findViewById(R.id.showPasswordCheckbox);
         phoneEditText = findViewById(R.id.phoneEditText);
@@ -72,6 +73,7 @@ public class Register extends AppCompatActivity {
         pacienteRadioButton = findViewById(R.id.pacienteRadioButton);
         registerButton = findViewById(R.id.registerButton);
         dateOfBirthEditText = findViewById(R.id.dateOfBirthEditText);
+        passwordInfoButton = findViewById(R.id.passwordInfoButton);
 
         showPasswordCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -79,6 +81,13 @@ public class Register extends AppCompatActivity {
                 int passwordInputType = isChecked ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
                 passwordEditText.setInputType(passwordInputType);
                 confirmPasswordEditText.setInputType(passwordInputType);
+            }
+        });
+
+        passwordInfoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(Register.this, "Mínimo 6 caracteres,\nMínimo 1 Mayúscula,\nMínimo 1 Minúscula,\nMínimo 1 Número", Toast.LENGTH_SHORT).show();
             }
         });
 

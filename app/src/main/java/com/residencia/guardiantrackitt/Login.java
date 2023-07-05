@@ -35,6 +35,7 @@ public class Login extends AppCompatActivity {
     private Button loginButton;
     private TextView forgotPasswordTextView;
     private Button recoverPasswordButton;
+    private TextView registerTextView; // Nuevo TextView para redirigir a la actividad de registro
     private FirebaseAuth mAuth;
     private DatabaseReference userTypeRef;
 
@@ -53,6 +54,7 @@ public class Login extends AppCompatActivity {
         recoverPasswordButton = findViewById(R.id.recoverPasswordButton);
         CheckBox showPasswordCheckbox = findViewById(R.id.showPasswordCheckbox);
         EditText passwordEditText = findViewById(R.id.passwordEditText);
+        registerTextView = findViewById(R.id.registerTextView); // Obtener la referencia del TextView de registro
 
         showPasswordCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -86,6 +88,15 @@ public class Login extends AppCompatActivity {
                 } else {
                     loginUser(email, password);
                 }
+            }
+        });
+
+        registerTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Redirigir a la actividad de registro
+                Intent intent = new Intent(Login.this, Register.class);
+                startActivity(intent);
             }
         });
     }

@@ -16,7 +16,8 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:text="Iniciar Sesión"
-        style="@style/MinimalButtonStyle" />
+        style="@style/MinimalButtonStyle"
+        android:backgroundTint="#b1accc"/>
 
     <Button
         android:id="@+id/registerButton"
@@ -26,7 +27,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
         android:text="Registrarse"
-        style="@style/MinimalButtonStyle" />
+        style="@style/MinimalButtonStyle"
+        android:backgroundTint="#b1accc"/>
 
     <Button
         android:id="@+id/websiteButton"
@@ -37,7 +39,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
         android:text="Pagina Web"
-        style="@style/MinimalButtonStyle" />
+        style="@style/MinimalButtonStyle"
+        android:backgroundTint="#b1accc"/>
 
     <Button
         android:id="@+id/aboutButton"
@@ -48,7 +51,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
         android:text="Sobre Nosotros"
-        style="@style/MinimalButtonStyle" />
+        style="@style/MinimalButtonStyle"
+        android:backgroundTint="#b1accc"/>
 
     <ImageView
         android:id="@+id/imageView"

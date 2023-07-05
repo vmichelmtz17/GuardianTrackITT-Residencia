@@ -7,6 +7,16 @@
     android:padding="16dp"
     tools:context=".Register">
 
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="REGISTRARSE"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#FFA500" />
+
     <EditText
         android:id="@+id/nameEditText"
         android:layout_width="match_parent"
@@ -21,21 +31,28 @@
         android:hint="Correo electrónico"
         android:inputType="textEmailAddress" />
 
-    <EditText
-        android:id="@+id/passwordEditText"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="Contraseña"
-        android:inputType="textPassword" />
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/passwordRequirementsTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Mínimo 6 caracteres,\nMínimo 1 Mayúscula,\nMínimo 1 Minúscula,\nMínimo 1 Número"
-        android:textColor="@color/colorAccent" />
+        <EditText
+            android:id="@+id/passwordEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Contraseña"
+            android:inputType="textPassword" />
+
+        <ImageButton
+            android:id="@+id/passwordInfoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_info"
+            android:background="@android:color/transparent"
+            android:contentDescription="Información de contraseña" />
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/confirmPasswordEditText"
@@ -96,6 +113,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
         android:text="Registrarse"
+        android:backgroundTint="#b1accc"
         style="@style/MinimalButtonStyle" />
 
 </LinearLayout>

@@ -5,6 +5,16 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="INICIAR SESIÓN"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#FFA500" />
+
     <EditText
         android:id="@+id/emailEditText"
         android:layout_width="match_parent"
@@ -28,7 +38,10 @@
         android:id="@+id/loginButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Iniciar sesión" />
+        android:text="Iniciar sesión"
+        android:backgroundTint="#b1accc"
+        style="@style/MinimalButtonStyle"/>
+
 
     <TextView
         android:id="@+id/forgotPasswordTextView"
@@ -36,13 +49,24 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="¿Olvidaste tu contraseña?"
-        android:textColor="@android:color/holo_blue_dark"
+        android:textColor="#FFA500"
         android:textSize="16sp" />
 
     <Button
         android:id="@+id/recoverPasswordButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="RECUPERAR CONTRASEÑA" />
+        android:text="RECUPERAR CONTRASEÑA"
+        android:backgroundTint="#b1accc"
+        style="@style/MinimalButtonStyle"/>
+
+    <TextView
+        android:id="@+id/registerTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="¿No tienes una cuenta? Regístrate"
+        android:textColor="#FFA500"
+        android:textSize="16sp" />
 
 </LinearLayout>
