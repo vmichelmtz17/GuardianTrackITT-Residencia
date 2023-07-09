@@ -61,6 +61,7 @@ public class PhotosFragment extends Fragment {
         } else {
             if (savedInstanceState != null) {
                 imageUris = savedInstanceState.getParcelableArrayList(STATE_IMAGE_URIS);
+                imageAdapter.notifyDataSetChanged();
             } else {
                 loadSavedImages();
             }
@@ -90,13 +91,16 @@ public class PhotosFragment extends Fragment {
     }
 
     private void handleImagePicked(Uri imageUri) {
-        // Guardar la URI de la imagen en el almacenamiento interno
-        String imagePath = saveImageToInternalStorage(imageUri);
-        if (imagePath != null) {
-            imageUris.add(Uri.parse(imagePath));
-            imageAdapter.notifyDataSetChanged();
-        } else {
-            Toast.makeText(requireContext(), "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+        // Verificar si la URI ya existe en la lista
+        if (!imageUris.contains(imageUri)) {
+            // Guardar la URI de la imagen en el almacenamiento interno
+            String imagePath = saveImageToInternalStorage(imageUri);
+            if (imagePath != null) {
+                imageUris.add(Uri.parse(imagePath));
+                imageAdapter.notifyDataSetChanged();
+            } else {
+                Toast.makeText(requireContext(), "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -140,11 +144,13 @@ public class PhotosFragment extends Fragment {
         });
 
         // Recorrer la lista de archivos y obtener las URIs de las imágenes guardadas
+        imageUris.clear(); // Limpiar la lista antes de cargar las imágenes
         if (imageFiles != null) {
             for (File imageFile : imageFiles) {
                 imageUris.add(Uri.fromFile(imageFile));
             }
         }
+        imageAdapter.notifyDataSetChanged();
     }
 
 
