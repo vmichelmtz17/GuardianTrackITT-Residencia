@@ -90,7 +90,10 @@
             android:name=".Home_Profesional"
             android:exported="false"
             android:label="Home Profesional" />
-
+        <activity
+            android:name="com.residencia.guardiantrackitt.FullScreenImageActivity"
+            android:label="Full Screen Image">
+        </activity>
 
         <service
             android:name="com.google.firebase.components.ComponentDiscoveryService"
