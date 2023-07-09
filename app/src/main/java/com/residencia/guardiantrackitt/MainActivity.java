@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -76,33 +77,37 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        // Verificar si el usuario ya ha iniciado sesión
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            // El usuario ya ha iniciado sesión, obtener el tipo de usuario desde Realtime Database
-            userTypeRef.child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            // Obtener el ID del usuario actual
+            String uid = currentUser.getUid();
+
+            // Obtener el tipo de usuario desde Firebase Realtime Database
+            userTypeRef.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    String userType = dataSnapshot.getValue(String.class);
-                    if (userType != null) {
-                        // Redirigir a la actividad Home correspondiente según el tipo de usuario
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String userType = dataSnapshot.getValue(String.class);
+                        // Redirigir al usuario a su respectiva actividad según su tipo de usuario
                         if (userType.equals("Familiar")) {
                             Intent intent = new Intent(MainActivity.this, Home_Familiar.class);
                             startActivity(intent);
-                        } else if (userType.equals("Profesional")) {
-                            Intent intent = new Intent(MainActivity.this, Home_Profesional.class);
+                        } else if (userType.equals("Paciente")) {
+                            Intent intent = new Intent(MainActivity.this, Paciente.class);
                             startActivity(intent);
                         }
-                        finish();
+                        finish(); // Finalizar MainActivity para que no se pueda volver atrás
                     } else {
-                        // El tipo de usuario no está definido en la base de datos
-                        // Aquí puedes manejar el caso en que el tipo de usuario no esté configurado correctamente
+                        // No se encontró el tipo de usuario en la base de datos
+                        // Realizar alguna acción o mostrar un mensaje de error
                     }
                 }
 
                 @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    // Error al leer el tipo de usuario desde Realtime Database
-                    // Aquí puedes manejar el caso de error de lectura de datos
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Manejo de errores de la consulta a la base de datos
                 }
             });
         }
