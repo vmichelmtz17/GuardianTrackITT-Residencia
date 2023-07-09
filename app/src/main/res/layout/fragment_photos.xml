@@ -1,26 +1,23 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="16dp"
-    android:paddingTop="16dp"
-    android:paddingRight="16dp"
-    android:paddingBottom="16dp"
-    tools:context=".PhotosFragment">
-
-    <Button
-        android:id="@+id/buttonAddImageManually"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Agregar imagen manualmente" />
+    android:orientation="vertical">
 
     <GridView
         android:id="@+id/gridView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/buttonAddImageManually"
-        android:numColumns="3"
+        android:layout_height="wrap_content"
+        android:numColumns="auto_fit"
         android:verticalSpacing="8dp"
-        android:horizontalSpacing="8dp" />
+        android:horizontalSpacing="8dp"
+        android:padding="8dp"/>
 
-</RelativeLayout>
+    <Button
+        android:id="@+id/buttonAddImageManually"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:text="Agregar imagen manualmente"/>
+
+</LinearLayout>

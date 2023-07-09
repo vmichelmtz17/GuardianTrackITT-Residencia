@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="image_options">
+        <item>Ver Imagen en pantalla completa</item>
+        <item>Editar Nombre de Imagen</item>
+        <item>Eliminar Imagen</item>
+    </string-array>
+</resources>

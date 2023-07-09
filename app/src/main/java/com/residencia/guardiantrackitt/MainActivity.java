@@ -94,9 +94,11 @@ public class MainActivity extends AppCompatActivity {
                         if (userType.equals("Familiar")) {
                             Intent intent = new Intent(MainActivity.this, Home_Familiar.class);
                             startActivity(intent);
+                            finish();
                         } else if (userType.equals("Paciente")) {
                             Intent intent = new Intent(MainActivity.this, Paciente.class);
                             startActivity(intent);
+                            finish();
                         }
                         finish(); // Finalizar MainActivity para que no se pueda volver atrás
                     } else {

@@ -2,10 +2,12 @@ package com.residencia.guardiantrackitt;
 
 import android.content.Context;
 import android.net.Uri;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
@@ -15,10 +17,12 @@ public class ImageAdapter extends BaseAdapter {
 
     private Context context;
     private ArrayList<Uri> imageUris;
+    private ArrayList<String> imageNames;
 
-    public ImageAdapter(Context context, ArrayList<Uri> imageUris) {
+    public ImageAdapter(Context context, ArrayList<Uri> imageUris, ArrayList<String> imageNames) {
         this.context = context;
         this.imageUris = imageUris;
+        this.imageNames = imageNames;
     }
 
     @Override
@@ -38,19 +42,29 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ImageView imageView;
+        ViewHolder viewHolder;
 
         if (convertView == null) {
-            imageView = new ImageView(context);
-            imageView.setLayoutParams(new ViewGroup.LayoutParams(250, 250));
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            convertView = LayoutInflater.from(context).inflate(R.layout.grid_item_image, parent, false);
+            viewHolder = new ViewHolder();
+            viewHolder.imageView = convertView.findViewById(R.id.imageView);
+            viewHolder.textView = convertView.findViewById(R.id.textView);
+            convertView.setTag(viewHolder);
         } else {
-            imageView = (ImageView) convertView;
+            viewHolder = (ViewHolder) convertView.getTag();
         }
 
         Uri imageUri = imageUris.get(position);
-        Glide.with(context).load(imageUri).into(imageView);
+        String imageName = imageNames.get(position);
 
-        return imageView;
+        Glide.with(context).load(imageUri).into(viewHolder.imageView);
+        viewHolder.textView.setText(imageName);
+
+        return convertView;
+    }
+
+    private static class ViewHolder {
+        ImageView imageView;
+        TextView textView;
     }
 }
