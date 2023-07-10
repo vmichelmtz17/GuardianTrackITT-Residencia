@@ -1,13 +1,20 @@
 package com.residencia.guardiantrackitt;
 
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -16,97 +23,67 @@ import com.google.firebase.database.ValueEventListener;
 
 public class InfoFragment extends Fragment {
 
-    private EditText editTextNombre;
-    private EditText editTextFechaNacimiento;
-    private Button buttonGuardar;
-
-    private PacienteModel pacienteModel;
-
-    public InfoFragment() {
-        // Required empty public constructor
-    }
-
-    public static InfoFragment newInstance(PacienteModel pacienteModel) {
-        InfoFragment fragment = new InfoFragment();
-        fragment.pacienteModel = pacienteModel;
-        return fragment;
-    }
+    private EditText nombreEditText;
+    private EditText fechaNacimientoEditText;
+    private EditText edadEditText;
+    private Button btnEditarInfo;
+    private DatabaseReference userDataRef;
+    private FirebaseUser currentUser;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_info, container, false);
 
-        editTextNombre = view.findViewById(R.id.editTextNombre);
-        editTextFechaNacimiento = view.findViewById(R.id.editTextFechaNacimiento);
-        buttonGuardar = view.findViewById(R.id.buttonGuardar);
+        nombreEditText = view.findViewById(R.id.nombreEditText);
+        fechaNacimientoEditText = view.findViewById(R.id.fechaNacimientoEditText);
+        edadEditText = view.findViewById(R.id.edadEditText);
+        btnEditarInfo = view.findViewById(R.id.btnEditarInfo);
 
-        // Establecer los datos del paciente en los EditText
-        if (pacienteModel != null) {
-            editTextNombre.setText(pacienteModel.getNombre());
-            editTextFechaNacimiento.setText(pacienteModel.getFechaNacimiento());
-            editTextNombre.setEnabled(false);
-            editTextFechaNacimiento.setEnabled(false);
-            buttonGuardar.setText("Editar Información");
-        } else {
-            // Obtén el último nombre y fecha de nacimiento registrados desde Firebase
-            obtenerUltimosDatosRegistrados();
-            buttonGuardar.setText("Agregar Información");
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            userDataRef = FirebaseDatabase.getInstance().getReference().child("users").child("userData").child(userId);
+
+            userDataRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String nombre = dataSnapshot.child("name").getValue(String.class);
+                        String fechaNacimiento = dataSnapshot.child("dateOfBirth").getValue(String.class);
+
+                        nombreEditText.setText(nombre);
+                        fechaNacimientoEditText.setText(fechaNacimiento);
+                    }
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Manejar caso de error de lectura de datos
+                }
+            });
         }
-
-        buttonGuardar.setOnClickListener(new View.OnClickListener() {
+        btnEditarInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (buttonGuardar.getText().equals("Agregar Información")) {
-                    editTextNombre.setEnabled(true);
-                    editTextFechaNacimiento.setEnabled(true);
-                    buttonGuardar.setText("Guardar Información");
-                } else if (buttonGuardar.getText().equals("Editar Información")) {
-                    editTextNombre.setEnabled(true);
-                    editTextFechaNacimiento.setEnabled(true);
-                    buttonGuardar.setText("Guardar Información");
-                } else if (buttonGuardar.getText().equals("Guardar Información")) {
-                    String nombre = editTextNombre.getText().toString();
-                    String fechaNacimiento = editTextFechaNacimiento.getText().toString();
+                // Obtener los valores editados
+                String nuevoNombre = nombreEditText.getText().toString();
+                String nuevaFechaNacimiento = fechaNacimientoEditText.getText().toString();
+                String nuevaEdadString = edadEditText.getText().toString();
 
-                    // Llama al método de la actividad Paciente para guardar los datos en Firebase
-                    if (getActivity() instanceof Paciente) {
-                        ((Paciente) getActivity()).guardarDatosPaciente(nombre, fechaNacimiento);
-                    }
-
-                    editTextNombre.setEnabled(false);
-                    editTextFechaNacimiento.setEnabled(false);
-                    buttonGuardar.setText("Editar Información");
+                // Verificar si la cadena de edad está vacía
+                int nuevaEdad = 0; // Valor predeterminado en caso de que la cadena esté vacía
+                if (!TextUtils.isEmpty(nuevaEdadString)) {
+                    nuevaEdad = Integer.parseInt(nuevaEdadString);
                 }
+
+                // Actualizar la información en Firebase
+                userDataRef.child("name").setValue(nuevoNombre);
+                userDataRef.child("dateOfBirth").setValue(nuevaFechaNacimiento);
+                userDataRef.child("age").setValue(nuevaEdad);
+
+                // Mostrar un mensaje o realizar alguna acción adicional
+                Toast.makeText(requireContext(), "Información actualizada en Firebase", Toast.LENGTH_SHORT).show();
             }
         });
-
         return view;
-    }
-
-    private void obtenerUltimosDatosRegistrados() {
-        // Obtén una referencia a la base de datos de Firebase
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference pacientesRef = database.getReference("pacientes");
-
-        // Realiza una consulta para obtener el último paciente registrado
-        pacientesRef.orderByKey().limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    PacienteModel paciente = snapshot.getValue(PacienteModel.class);
-                    if (paciente != null) {
-                        editTextNombre.setText(paciente.getNombre());
-                        editTextFechaNacimiento.setText(paciente.getFechaNacimiento());
-                    }
-                    break;
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Manejo de errores de la consulta
-            }
-        });
     }
 }

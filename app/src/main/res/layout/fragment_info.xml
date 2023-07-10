@@ -7,36 +7,47 @@
     tools:context=".InfoFragment">
 
     <TextView
-        android:id="@+id/textViewNombre"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Nombre" />
+        android:text="Nombre:"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <EditText
-        android:id="@+id/editTextNombre"
+        android:id="@+id/nombreEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:enabled="false"
-        android:maxLines="1"
-        android:singleLine="true" />
+        android:inputType="text" />
 
     <TextView
-        android:id="@+id/textViewFechaNacimiento"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Fecha de Nacimiento" />
+        android:text="Fecha de Nacimiento:"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <EditText
-        android:id="@+id/editTextFechaNacimiento"
+        android:id="@+id/fechaNacimientoEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:enabled="false"
-        android:maxLines="1"
-        android:singleLine="true" />
+        android:inputType="date" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edad:"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/edadEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number" />
 
     <Button
-        android:id="@+id/buttonGuardar"
-        android:layout_width="wrap_content"
+        android:id="@+id/btnEditarInfo"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Editar Información" />
 
