@@ -32,19 +32,6 @@
         android:layout_height="wrap_content"
         android:inputType="date" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Edad:"
-        android:textSize="16sp"
-        android:textStyle="bold" />
-
-    <EditText
-        android:id="@+id/edadEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="number" />
-
     <Button
         android:id="@+id/btnEditarInfo"
         android:layout_width="match_parent"

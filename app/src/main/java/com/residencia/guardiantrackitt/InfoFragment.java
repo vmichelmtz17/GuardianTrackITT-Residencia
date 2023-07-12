@@ -25,7 +25,6 @@ public class InfoFragment extends Fragment {
 
     private EditText nombreEditText;
     private EditText fechaNacimientoEditText;
-    private EditText edadEditText;
     private Button btnEditarInfo;
     private DatabaseReference userDataRef;
     private FirebaseUser currentUser;
@@ -36,7 +35,6 @@ public class InfoFragment extends Fragment {
 
         nombreEditText = view.findViewById(R.id.nombreEditText);
         fechaNacimientoEditText = view.findViewById(R.id.fechaNacimientoEditText);
-        edadEditText = view.findViewById(R.id.edadEditText);
         btnEditarInfo = view.findViewById(R.id.btnEditarInfo);
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -67,18 +65,11 @@ public class InfoFragment extends Fragment {
                 // Obtener los valores editados
                 String nuevoNombre = nombreEditText.getText().toString();
                 String nuevaFechaNacimiento = fechaNacimientoEditText.getText().toString();
-                String nuevaEdadString = edadEditText.getText().toString();
 
-                // Verificar si la cadena de edad está vacía
-                int nuevaEdad = 0; // Valor predeterminado en caso de que la cadena esté vacía
-                if (!TextUtils.isEmpty(nuevaEdadString)) {
-                    nuevaEdad = Integer.parseInt(nuevaEdadString);
-                }
 
                 // Actualizar la información en Firebase
                 userDataRef.child("name").setValue(nuevoNombre);
                 userDataRef.child("dateOfBirth").setValue(nuevaFechaNacimiento);
-                userDataRef.child("age").setValue(nuevaEdad);
 
                 // Mostrar un mensaje o realizar alguna acción adicional
                 Toast.makeText(requireContext(), "Información actualizada en Firebase", Toast.LENGTH_SHORT).show();
