@@ -1,15 +1,18 @@
 package com.residencia.guardiantrackitt;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
-import android.widget.ExpandableListAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,20 +48,23 @@ public class About extends AppCompatActivity {
 
         // Agregar los títulos y los elementos de cada sección
         List<String> integrantes = new ArrayList<>();
-        integrantes.add("Integrante 1");
-        integrantes.add("Integrante 2");
-        integrantes.add("Integrante 3");
+        integrantes.add("Alan Enrique García Cuestar");
+        integrantes.add("Marco Polo Lozano Álvarez");
+        integrantes.add("Vicente Michel Martínez Portela");
 
         List<String> proyecto = new ArrayList<>();
-        proyecto.add("Descripción del proyecto");
+        proyecto.add("El proyecto tiene como finalidad desarrollar una aplicación móvil y web para ayudar a personas que padecen Alzheimer ayudándoles a mantener su ubicación activa, para que le permita a la familia y a los cuidadores de la persona con alzheimer localizarla en caso de que se extravíe, también contará con un dispositivo oxímetro que detectará el ritmo cardiaco y, basándose en el resultado, saber si necesita ayuda antes del extravío.");
 
         List<String> instituto = new ArrayList<>();
-        instituto.add("Nombre del instituto");
-        instituto.add("Dirección del instituto");
+        instituto.add("Instituto Tecnologico de Tijuana");
+        instituto.add("Calz del Tecnológico 12950, Tomas Aquino, 22414 Tijuana, B.C.");
+        instituto.add("Ir al Instituto en Maps");
+
+        // Obtén la dirección como un String
+        String direccion = instituto.get(1);
 
         List<String> contacto = new ArrayList<>();
-        contacto.add("Correo electrónico");
-        contacto.add("Teléfono");
+        contacto.add("guardiantrack2023@gmail.com");
 
         expandableListDetail.put("Integrantes", integrantes);
         expandableListDetail.put("Proyecto", proyecto);
@@ -134,8 +140,33 @@ public class About extends AppCompatActivity {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(R.layout.list_item, null);
             }
+
             TextView listItemTextView = convertView.findViewById(R.id.listItem);
-            listItemTextView.setText(item);
+            if (item.equals("Instituto Tecnologico de Tijuana")) {
+                listItemTextView.setText("Ir al Instituto en Maps");
+            } else if (item.equals("guardiantrack2023@gmail.com")) {
+                listItemTextView.setText("Enviar correo a guardiantrack2023@gmail.com");
+            } else {
+                listItemTextView.setText(item);
+            }
+
+            listItemTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (item.equals("Ir al Instituto en Maps")) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://goo.gl/maps/vmvyTPzv8oT3kaHN9"));
+                        context.startActivity(intent);
+                    } else if (item.equals("Enviar correo a guardiantrack2023@gmail.com")) {
+                        Intent intent = new Intent(Intent.ACTION_SENDTO);
+                        intent.setData(Uri.parse("mailto:guardiantrack2023@gmail.com"));
+                        context.startActivity(Intent.createChooser(intent, "Enviar correo"));
+                    } else if (item.startsWith("http")) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(item));
+                        context.startActivity(intent);
+                    }
+                }
+            });
+
             return convertView;
         }
 

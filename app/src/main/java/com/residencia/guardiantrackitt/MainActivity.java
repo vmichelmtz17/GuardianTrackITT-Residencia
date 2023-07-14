@@ -99,8 +99,10 @@ public class MainActivity extends AppCompatActivity {
                             Intent intent = new Intent(MainActivity.this, Paciente.class);
                             startActivity(intent);
                             finish();
+                        } else {
+                            // El tipo de usuario no es válido
+                            // Realizar alguna acción o mostrar un mensaje de error
                         }
-                        finish(); // Finalizar MainActivity para que no se pueda volver atrás
                     } else {
                         // No se encontró el tipo de usuario en la base de datos
                         // Realizar alguna acción o mostrar un mensaje de error
