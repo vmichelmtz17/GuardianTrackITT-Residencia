@@ -7,11 +7,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -43,28 +40,27 @@ public class Perfil extends AppCompatActivity {
 
     private void cargarDatosUsuario() {
         if (currentUser != null) {
-            // Obtener la referencia al documento del usuario actual en Firestore
-            DocumentReference userRef = db.collection("users").document(currentUser.getUid());
+            // Obtener la referencia al documento del usuario actual en Cloud Firestore
+            db.collection("users").document(currentUser.getUid())
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                String nombre = document.getString("name");
+                                String correo = currentUser.getEmail();
+                                String celular = document.getString("phone");
 
-            userRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    // Obtener los datos del documento y mostrarlos en los TextView correspondientes
-                    String nombre = documentSnapshot.getString("name");
-                    String correo = currentUser.getEmail();
-                    String celular = currentUser.getPhoneNumber();
-
-                    textViewNombre.setText("Nombre: " + nombre);
-                    textViewCorreo.setText("Correo: " + correo);
-                    textViewCelular.setText("Celular: " + celular);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    // Manejar el error
-                    Toast.makeText(Perfil.this, "Error al cargar los datos del usuario.", Toast.LENGTH_SHORT).show();
-                }
-            });
+                                textViewNombre.setText("Nombre: " + nombre);
+                                textViewCorreo.setText("Correo: " + correo);
+                                textViewCelular.setText("Celular: " + celular);
+                            } else {
+                                Toast.makeText(Perfil.this, "No se encontraron datos del usuario en la base de datos.", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(Perfil.this, "Error al cargar los datos del usuario.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         } else {
             Toast.makeText(this, "No se ha iniciado sesión", Toast.LENGTH_SHORT).show();
         }
