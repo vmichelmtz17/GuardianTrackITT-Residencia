@@ -3,30 +3,57 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textViewNombre"
+    <LinearLayout
+        android:id="@+id/layoutNombre"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Nombre:"
-        android:textSize="18sp"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:background="@drawable/border"
+        android:padding="8dp">
 
-    <TextView
-        android:id="@+id/textViewCorreo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Correo:"
-        android:textSize="18sp"
-        android:layout_below="@id/textViewNombre"
-        android:layout_marginTop="8dp" />
+        <TextView
+            android:id="@+id/textViewNombre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nombre:"
+            android:textSize="18sp" />
 
-    <TextView
-        android:id="@+id/textViewCelular"
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutCorreo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Celular:"
-        android:textSize="18sp"
-        android:layout_below="@id/textViewCorreo"
-        android:layout_marginTop="8dp" />
+        android:layout_below="@id/layoutNombre"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/border"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/textViewCorreo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Correo:"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutCelular"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layoutCorreo"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/border"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/textViewCelular"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Celular:"
+            android:textSize="18sp" />
+
+    </LinearLayout>
 
 </RelativeLayout>
