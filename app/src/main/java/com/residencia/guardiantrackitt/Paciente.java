@@ -35,7 +35,6 @@ public class Paciente extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        // Configurar el listener para el BottomNavigationView
         bottomNavigationView.setOnNavigationItemSelectedListener(
                 item -> {
                     switch (item.getItemId()) {
@@ -56,30 +55,25 @@ public class Paciente extends AppCompatActivity {
                 }
         );
 
-        // Obtén el ID del paciente desde Firebase
         obtenerPacienteId();
     }
+
     private void obtenerPacienteId() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             String userId = user.getUid();
 
-            // Obtén una referencia a la base de datos de Firebase
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference pacientesRef = database.getReference("Paciente");
 
-            // Realiza una consulta a la base de datos para obtener el paciente del usuario actual
             Query query = pacientesRef.orderByChild("userId").equalTo(userId).limitToFirst(1);
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
-                        // Paciente registrado, obtener el ID del paciente
                         pacienteId = dataSnapshot.getChildren().iterator().next().getKey();
-                    } else {
                     }
 
-                    // Llama al método abrirHomeFragment() aquí, después de obtener el ID del paciente
                     abrirHomeFragment();
                 }
 
@@ -118,22 +112,17 @@ public class Paciente extends AppCompatActivity {
         if (user != null) {
             String userId = user.getUid();
 
-            // Obtén una referencia a la base de datos de Firebase
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference pacientesRef = database.getReference("Paciente");
 
-            // Crea un nuevo objeto PacienteModel
             PacienteModel paciente = new PacienteModel(userId, nombre, fechaNacimiento);
 
-            // Si el ID del paciente actual es nulo, genera uno nuevo
             if (pacienteId == null) {
                 pacienteId = pacientesRef.push().getKey();
             }
 
-            // Guarda los datos del paciente en la ubicación correspondiente en la base de datos
             pacientesRef.child(pacienteId).setValue(paciente);
 
-            // Después de guardar los datos, abrir el HomeFragment
             abrirHomeFragment();
         }
     }

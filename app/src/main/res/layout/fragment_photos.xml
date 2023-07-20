@@ -3,6 +3,14 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <Button
+        android:id="@+id/buttonAddImageManually"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:text="Agregar imagen manualmente"/>
+
     <GridView
         android:id="@+id/gridView"
         android:layout_width="match_parent"
@@ -11,13 +19,5 @@
         android:verticalSpacing="8dp"
         android:horizontalSpacing="8dp"
         android:padding="8dp"/>
-
-    <Button
-        android:id="@+id/buttonAddImageManually"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp"
-        android:text="Agregar imagen manualmente"/>
 
 </LinearLayout>
