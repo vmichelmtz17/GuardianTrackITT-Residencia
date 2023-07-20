@@ -1,9 +1,11 @@
 package com.residencia.guardiantrackitt;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,12 +18,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Button loginButton;
-    private Button registerButton;
-    private Button websiteButton;
-    private Button aboutButton;
     private FirebaseAuth mAuth;
     private DatabaseReference userTypeRef;
 
@@ -31,89 +29,74 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mAuth = FirebaseAuth.getInstance();
-        userTypeRef = FirebaseDatabase.getInstance().getReference().child("users").child("userType");
+        userTypeRef = FirebaseDatabase.getInstance().getReference().child("users");
 
-        loginButton = findViewById(R.id.loginButton);
-        registerButton = findViewById(R.id.registerButton);
-        websiteButton = findViewById(R.id.websiteButton);
-        aboutButton = findViewById(R.id.aboutButton);
+        Button loginButton = findViewById(R.id.loginButton);
+        Button registerButton = findViewById(R.id.registerButton);
+        Button websiteButton = findViewById(R.id.websiteButton);
+        Button aboutButton = findViewById(R.id.aboutButton);
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, Login.class);
-                startActivity(intent);
-            }
-        });
-
-        registerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, Register.class);
-                startActivity(intent);
-            }
-        });
-
-        websiteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Abrir página web en el navegador
-                String url = "https://alzheimertijuana.netlify.app/";
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(android.net.Uri.parse(url));
-                startActivity(intent);
-            }
-        });
-
-        aboutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, About.class);
-                startActivity(intent);
-            }
-        });
+        loginButton.setOnClickListener(this);
+        registerButton.setOnClickListener(this);
+        websiteButton.setOnClickListener(this);
+        aboutButton.setOnClickListener(this);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        // Verificar si el usuario ya ha iniciado sesión
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            // Obtener el ID del usuario actual
             String uid = currentUser.getUid();
 
-            // Obtener el tipo de usuario desde Firebase Realtime Database
-            userTypeRef.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            userTypeRef.child(uid).child("userType").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        String userType = dataSnapshot.getValue(String.class);
-                        // Redirigir al usuario a su respectiva actividad según su tipo de usuario
+                    String userType = dataSnapshot.getValue(String.class);
+
+                    if (userType != null) {
                         if (userType.equals("Familiar")) {
-                            Intent intent = new Intent(MainActivity.this, Home_Familiar.class);
-                            startActivity(intent);
-                            finish();
+                            startActivity(new Intent(MainActivity.this, Home_Familiar.class));
                         } else if (userType.equals("Paciente")) {
-                            Intent intent = new Intent(MainActivity.this, Paciente.class);
-                            startActivity(intent);
-                            finish();
-                        } else {
-                            // El tipo de usuario no es válido
-                            // Realizar alguna acción o mostrar un mensaje de error
+                            startActivity(new Intent(MainActivity.this, Paciente.class));
                         }
-                    } else {
-                        // No se encontró el tipo de usuario en la base de datos
-                        // Realizar alguna acción o mostrar un mensaje de error
+
+                        finish(); // Finaliza MainActivity para que no se pueda volver atrás
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // Manejo de errores de la consulta a la base de datos
+                    Toast.makeText(MainActivity.this, "Error al obtener el tipo de usuario", Toast.LENGTH_SHORT).show();
                 }
             });
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.loginButton:
+                startActivity(new Intent(this, Login.class));
+                break;
+            case R.id.registerButton:
+                startActivity(new Intent(this, Register.class));
+                break;
+            case R.id.websiteButton:
+                openWebPage("https://alzheimertijuana.netlify.app/");
+                break;
+            case R.id.aboutButton:
+                startActivity(new Intent(this, About.class));
+                break;
+        }
+    }
+
+    private void openWebPage(String url) {
+        Uri webpage = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
         }
     }
 }

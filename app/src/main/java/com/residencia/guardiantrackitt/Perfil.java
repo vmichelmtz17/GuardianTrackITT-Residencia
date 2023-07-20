@@ -1,12 +1,14 @@
 package com.residencia.guardiantrackitt;
 
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -21,6 +23,7 @@ public class Perfil extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private FirebaseUser currentUser;
+    private ImageView profileImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +33,7 @@ public class Perfil extends AppCompatActivity {
         textViewNombre = findViewById(R.id.textViewNombre);
         textViewCorreo = findViewById(R.id.textViewCorreo);
         textViewCelular = findViewById(R.id.textViewCelular);
+        profileImageView = findViewById(R.id.profileImageView);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -54,6 +58,16 @@ public class Perfil extends AppCompatActivity {
                                 textViewNombre.setText("Nombre: " + nombre);
                                 textViewCorreo.setText("Correo: " + correo);
                                 textViewCelular.setText("Celular: " + celular);
+
+                                // Cargar y mostrar la foto de perfil
+                                String fotoPerfil = document.getString("profileImageUri");
+                                if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
+                                    Glide.with(this)
+                                            .load(fotoPerfil)
+                                            .placeholder(R.drawable.default_profile_image)
+                                            .error(R.drawable.default_profile_image)
+                                            .into(profileImageView);
+                                }
                             } else {
                                 Toast.makeText(Perfil.this, "No se encontraron datos del usuario en la base de datos.", Toast.LENGTH_SHORT).show();
                             }

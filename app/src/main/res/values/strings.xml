@@ -56,5 +56,5 @@
     <string name="agregar_informacion_button">Agregar Información</string>
     <string name="guardar_button">Guardar</string>
 
-
+    <string name="profile_image_description">Descripción de la imagen de perfil</string>
 </resources>

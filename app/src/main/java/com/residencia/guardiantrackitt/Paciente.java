@@ -59,7 +59,6 @@ public class Paciente extends AppCompatActivity {
         // Obtén el ID del paciente desde Firebase
         obtenerPacienteId();
     }
-
     private void obtenerPacienteId() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -77,11 +76,11 @@ public class Paciente extends AppCompatActivity {
                     if (dataSnapshot.exists()) {
                         // Paciente registrado, obtener el ID del paciente
                         pacienteId = dataSnapshot.getChildren().iterator().next().getKey();
-                        abrirHomeFragment();
                     } else {
-                        // No hay paciente registrado para el usuario actual
-                        abrirInfoFragment();
                     }
+
+                    // Llama al método abrirHomeFragment() aquí, después de obtener el ID del paciente
+                    abrirHomeFragment();
                 }
 
                 @Override

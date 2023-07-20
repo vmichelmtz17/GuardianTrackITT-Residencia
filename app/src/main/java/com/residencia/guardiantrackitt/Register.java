@@ -3,6 +3,7 @@ package com.residencia.guardiantrackitt;
 import static android.content.ContentValues.TAG;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -20,6 +22,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -52,6 +55,8 @@ public class Register extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private EditText dateOfBirthEditText;
     private ImageButton passwordInfoButton;
+    private ImageView profileImageView;
+    private Uri profileImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +79,7 @@ public class Register extends AppCompatActivity {
         registerButton = findViewById(R.id.registerButton);
         dateOfBirthEditText = findViewById(R.id.dateOfBirthEditText);
         passwordInfoButton = findViewById(R.id.passwordInfoButton);
+        profileImageView = findViewById(R.id.profileImageView);
 
         showPasswordCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -88,6 +94,13 @@ public class Register extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Register.this, "Mínimo 6 caracteres,\nMínimo 1 Mayúscula,\nMínimo 1 Minúscula,\nMínimo 1 Número", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        profileImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectProfileImage();
             }
         });
 
@@ -190,5 +203,28 @@ public class Register extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    private void selectProfileImage() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, 1);
+    }
+
+    public void selectPhoto(View view) {
+        selectProfileImage();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
+            profileImageUri = data.getData();
+            Glide.with(this)
+                    .load(profileImageUri)
+                    .placeholder(R.drawable.default_profile_image)
+                    .error(R.drawable.default_profile_image)
+                    .into(profileImageView);
+        }
     }
 }
