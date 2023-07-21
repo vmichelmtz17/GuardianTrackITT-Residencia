@@ -21,6 +21,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -39,6 +41,7 @@ public class Contacto extends AppCompatActivity {
     private DatabaseReference contactosRef;
     private ContactoAdapter contactoAdapter;
     private FirebaseUser currentUser;
+    private boolean hasContact = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +52,7 @@ public class Contacto extends AppCompatActivity {
         editTextNumero = findViewById(R.id.editTextNumero);
         buttonAgregar = findViewById(R.id.buttonAgregar);
         listViewContactos = findViewById(R.id.listViewContactos);
-        Button buttonMensajeTemporal = findViewById(R.id.buttonMensajeTemporal);
+        buttonMensajeTemporal = findViewById(R.id.buttonMensajeTemporal);
 
         contactosRef = FirebaseDatabase.getInstance().getReference("contactos");
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -87,7 +90,6 @@ public class Contacto extends AppCompatActivity {
             }
         });
 
-
         listViewContactos.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -98,14 +100,20 @@ public class Contacto extends AppCompatActivity {
 
         mostrarContactosDesdeFirebase();
     }
+
     private void mostrarMensajeTemporal() {
-        String numero = editTextNumero.getText().toString();
-        if (numero.length() == 10) {
-            Toast.makeText(this, "Selecciona un contacto para realizar acciones", Toast.LENGTH_SHORT).show();
+        if (contactoAdapter.getCount() > 0) {
+            Toast.makeText(this, "Ya has agregado un contacto", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Selecciona un contacto para realizar acciones \n El número debe tener 10 dígitos", Toast.LENGTH_SHORT).show();
+            String numero = editTextNumero.getText().toString();
+            if (numero.length() == 10) {
+                Toast.makeText(this, "Selecciona un contacto para realizar acciones", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Selecciona un contacto para realizar acciones \n El número debe tener 10 dígitos", Toast.LENGTH_SHORT).show();
+            }
         }
     }
+
     private void mostrarContactosDesdeFirebase() {
         if (currentUser != null) {
             String userId = currentUser.getUid();
@@ -131,17 +139,20 @@ public class Contacto extends AppCompatActivity {
     }
 
     private void guardarContactoEnFirebase(String nombre, String numero) {
-        if (currentUser != null) {
+        if (currentUser != null && !hasContact) {
             String userId = currentUser.getUid();
             String contactoId = contactosRef.child(userId).push().getKey();
             String numeroCompleto = "+52" + numero; // Agregar el prefijo "+52" al número de teléfono
             ContactoModel contacto = new ContactoModel(contactoId, nombre, numeroCompleto);
             if (contactoId != null) {
                 contactosRef.child(userId).child(contactoId).setValue(contacto);
+                hasContact = true;
+                buttonAgregar.setText("Borrar");
             }
+        } else {
+            Toast.makeText(this, "Ya has agregado un contacto", Toast.LENGTH_SHORT).show();
         }
     }
-
 
     private void mostrarDialogContacto(final ContactoModel contacto) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
@@ -149,7 +160,7 @@ public class Contacto extends AppCompatActivity {
         dialogBuilder.setMessage("¿Qué acción deseas realizar?");
 
         SpannableString editarOption = new SpannableString("Editar");
-        editarOption.setSpan(new ForegroundColorSpan(Color.BLUE), 0, editarOption.length(), 0);
+        editarOption.setSpan(new ForegroundColorSpan(Color.BLACK), 0, editarOption.length(), 0);
         dialogBuilder.setPositiveButton(editarOption, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -158,16 +169,16 @@ public class Contacto extends AppCompatActivity {
         });
 
         SpannableString eliminarOption = new SpannableString("Eliminar");
-        eliminarOption.setSpan(new ForegroundColorSpan(Color.RED), 0, eliminarOption.length(), 0);
+        eliminarOption.setSpan(new ForegroundColorSpan(Color.BLACK), 0, eliminarOption.length(), 0);
         dialogBuilder.setNegativeButton(eliminarOption, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                mostrarDialogEliminarContacto(contacto);
+                eliminarContactoEnFirebase(contacto);
             }
         });
 
         SpannableString whatsappOption = new SpannableString("Abrir en WhatsApp");
-        whatsappOption.setSpan(new ForegroundColorSpan(Color.GREEN), 0, whatsappOption.length(), 0);
+        whatsappOption.setSpan(new ForegroundColorSpan(Color.BLACK), 0, whatsappOption.length(), 0);
         dialogBuilder.setNeutralButton(whatsappOption, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -190,7 +201,6 @@ public class Contacto extends AppCompatActivity {
         }
     }
 
-
     private void mostrarDialogEditarContacto(final ContactoModel contacto) {
         try {
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
@@ -206,24 +216,41 @@ public class Contacto extends AppCompatActivity {
 
             dialogBuilder.setTitle("Editar contacto");
             SpannableString guardarButton = new SpannableString("Guardar");
-            guardarButton.setSpan(new ForegroundColorSpan(Color.GREEN), 0, guardarButton.length(), 0);
+            guardarButton.setSpan(new ForegroundColorSpan(Color.BLACK), 0, guardarButton.length(), 0);
             dialogBuilder.setPositiveButton(guardarButton, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     String nuevoNombre = editTextNuevoNombre.getText().toString();
                     String nuevoNumero = editTextNuevoNumero.getText().toString();
 
                     if (!nuevoNombre.isEmpty() && !nuevoNumero.isEmpty()) {
+                        // Actualizar los datos del contacto
                         contacto.setNombre(nuevoNombre);
                         contacto.setNumero(nuevoNumero);
-                        contactosRef.child(contacto.getId()).setValue(contacto);
-                        Toast.makeText(Contacto.this, "Contacto actualizado", Toast.LENGTH_SHORT).show();
+
+                        if (currentUser != null) {
+                            String userId = currentUser.getUid();
+                            DatabaseReference contactoRef = contactosRef.child(userId).child(contacto.getId());
+                            contactoRef.setValue(contacto)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(Contacto.this, "Contacto actualizado", Toast.LENGTH_SHORT).show();
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(Contacto.this, "Error al actualizar el contacto", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                        }
                     } else {
                         Toast.makeText(Contacto.this, "Completa todos los campos", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
             SpannableString cancelarButton = new SpannableString("Cancelar");
-            cancelarButton.setSpan(new ForegroundColorSpan(Color.RED), 0, cancelarButton.length(), 0);
+            cancelarButton.setSpan(new ForegroundColorSpan(Color.BLACK), 0, cancelarButton.length(), 0);
             dialogBuilder.setNegativeButton(cancelarButton, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     // Cancelar la edición del contacto
@@ -237,25 +264,40 @@ public class Contacto extends AppCompatActivity {
         }
     }
 
-    private void mostrarDialogEliminarContacto(final ContactoModel contacto) {
+    private void eliminarContactoEnFirebase(final ContactoModel contacto) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_eliminar_contacto, null);
-        dialogBuilder.setView(dialogView);
-
-        TextView textViewConfirmacion = dialogView.findViewById(R.id.textViewConfirmacion);
-
         dialogBuilder.setTitle("Eliminar contacto");
+        dialogBuilder.setMessage("¿Estás seguro que deseas eliminar este contacto?");
+
         SpannableString aceptarButton = new SpannableString("Aceptar");
-        aceptarButton.setSpan(new ForegroundColorSpan(Color.GREEN), 0, aceptarButton.length(), 0);
+        aceptarButton.setSpan(new ForegroundColorSpan(Color.BLACK), 0, aceptarButton.length(), 0);
         dialogBuilder.setPositiveButton(aceptarButton, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                contactosRef.child(contacto.getId()).removeValue();
-                Toast.makeText(Contacto.this, "Contacto eliminado", Toast.LENGTH_SHORT).show();
+                if (currentUser != null) {
+                    String userId = currentUser.getUid();
+                    DatabaseReference contactoRef = contactosRef.child(userId).child(contacto.getId());
+                    contactoRef.removeValue()
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(Contacto.this, "Contacto eliminado", Toast.LENGTH_SHORT).show();
+                                    contactoAdapter.remove(contacto);
+                                    hasContact = false;
+                                    buttonAgregar.setText("Agregar");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(Contacto.this, "Error al eliminar el contacto", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
             }
         });
+
         SpannableString cancelarButton = new SpannableString("Cancelar");
-        cancelarButton.setSpan(new ForegroundColorSpan(Color.RED), 0, cancelarButton.length(), 0);
+        cancelarButton.setSpan(new ForegroundColorSpan(Color.BLACK), 0, cancelarButton.length(), 0);
         dialogBuilder.setNegativeButton(cancelarButton, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 // Cancelar la eliminación del contacto
