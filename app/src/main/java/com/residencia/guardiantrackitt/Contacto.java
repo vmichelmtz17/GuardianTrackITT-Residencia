@@ -43,6 +43,36 @@ public class Contacto extends AppCompatActivity {
     private FirebaseUser currentUser;
     private boolean hasContact = false;
 
+    private void verificarContactosEnFirebase() {
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            Query query = contactosRef.child(userId);
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        // Si hay contactos, deshabilitar los EditText
+                        editTextNombre.setEnabled(false);
+                        editTextNumero.setEnabled(false);
+                        hasContact = true;
+                        buttonAgregar.setText("Borrar");
+                    } else {
+                        // Si no hay contactos, habilitar los EditText
+                        editTextNombre.setEnabled(true);
+                        editTextNumero.setEnabled(true);
+                        hasContact = false;
+                        buttonAgregar.setText("Agregar");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Manejar el error si no se pueden obtener los contactos de Firebase
+                }
+            });
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +89,8 @@ public class Contacto extends AppCompatActivity {
 
         contactoAdapter = new ContactoAdapter(this, R.layout.item_contacto);
         listViewContactos.setAdapter(contactoAdapter);
+
+        verificarContactosEnFirebase();
 
         buttonAgregar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,6 +180,9 @@ public class Contacto extends AppCompatActivity {
                 contactosRef.child(userId).child(contactoId).setValue(contacto);
                 hasContact = true;
                 buttonAgregar.setText("Borrar");
+                // Deshabilitar los EditText
+                editTextNombre.setEnabled(false);
+                editTextNumero.setEnabled(false);
             }
         } else {
             Toast.makeText(this, "Ya has agregado un contacto", Toast.LENGTH_SHORT).show();
@@ -284,6 +319,9 @@ public class Contacto extends AppCompatActivity {
                                     contactoAdapter.remove(contacto);
                                     hasContact = false;
                                     buttonAgregar.setText("Agregar");
+                                    // Deshabilitar los EditText
+                                    editTextNombre.setEnabled(true);
+                                    editTextNumero.setEnabled(true);
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {
