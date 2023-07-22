@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,6 +29,7 @@ public class InfoFragment extends Fragment {
     private Button btnEditarInfo;
     private DatabaseReference userDataRef;
     private FirebaseUser currentUser;
+    private TextView uidTextView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -36,6 +38,7 @@ public class InfoFragment extends Fragment {
         nombreEditText = view.findViewById(R.id.nombreEditText);
         fechaNacimientoEditText = view.findViewById(R.id.fechaNacimientoEditText);
         btnEditarInfo = view.findViewById(R.id.btnEditarInfo);
+        uidTextView = view.findViewById(R.id.uidTextView);
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -51,21 +54,24 @@ public class InfoFragment extends Fragment {
 
                         nombreEditText.setText(nombre);
                         fechaNacimientoEditText.setText(fechaNacimiento);
+
+                        uidTextView.setText("UID del usuario: " + userId); // Mostrar el UID del usuario actual en el TextView
                     }
                 }
+
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
                     // Manejar caso de error de lectura de datos
                 }
             });
         }
+
         btnEditarInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Obtener los valores editados
                 String nuevoNombre = nombreEditText.getText().toString();
                 String nuevaFechaNacimiento = fechaNacimientoEditText.getText().toString();
-
 
                 // Actualizar la información en Firebase
                 userDataRef.child("name").setValue(nuevoNombre);

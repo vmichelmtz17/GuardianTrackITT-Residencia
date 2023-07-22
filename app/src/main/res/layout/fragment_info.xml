@@ -6,6 +6,12 @@
     android:padding="16dp"
     tools:context=".InfoFragment">
 
+    <Button
+        android:id="@+id/btnEditarInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Editar Información" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,10 +38,13 @@
         android:layout_height="wrap_content"
         android:inputType="date" />
 
-    <Button
-        android:id="@+id/btnEditarInfo"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/uidTextView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Editar Información" />
+        android:text="UID del usuario:"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
 
 </LinearLayout>
