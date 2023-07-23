@@ -177,7 +177,7 @@ public class Register extends AppCompatActivity {
                                                         public void onComplete(@NonNull Task<Void> task) {
                                                             if (task.isSuccessful()) {
                                                                 if (userType.equals("Familiar")) {
-                                                                    Intent intent = new Intent(Register.this, Home_Familiar.class);
+                                                                    Intent intent = new Intent(Register.this, VincularPaciente.class);
                                                                     startActivity(intent);
                                                                 } else if (userType.equals("Paciente")) {
                                                                     Intent intent = new Intent(Register.this, Paciente.class);

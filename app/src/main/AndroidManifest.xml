@@ -87,6 +87,10 @@
             android:exported="false"
             android:label="Home Familiar" />
         <activity
+            android:name=".VincularPaciente"
+            android:exported="false"
+            android:label="Vincular Paciente" />
+        <activity
             android:name="com.residencia.guardiantrackitt.FullScreenImageActivity"
             android:label="Full Screen Image">
         </activity>

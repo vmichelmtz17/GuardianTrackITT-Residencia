@@ -1,5 +1,8 @@
 package com.residencia.guardiantrackitt;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -66,6 +69,14 @@ public class InfoFragment extends Fragment {
             });
         }
 
+        // Agregar OnClickListener al TextView para copiar el UID al portapapeles
+        uidTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                copyUidToClipboard();
+            }
+        });
+
         btnEditarInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,5 +93,17 @@ public class InfoFragment extends Fragment {
             }
         });
         return view;
+    }
+
+    private void copyUidToClipboard() {
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            if (!TextUtils.isEmpty(userId)) {
+                ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("UID", userId);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(requireContext(), "UID copiado al portapapeles", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
