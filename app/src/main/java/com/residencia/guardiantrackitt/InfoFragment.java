@@ -1,8 +1,12 @@
 package com.residencia.guardiantrackitt;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -15,8 +19,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -33,6 +43,10 @@ public class InfoFragment extends Fragment {
     private DatabaseReference userDataRef;
     private FirebaseUser currentUser;
     private TextView uidTextView;
+    private Button btnObtenerUbicacion;
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationCallback locationCallback;
+    private DatabaseReference locationRef;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -42,6 +56,7 @@ public class InfoFragment extends Fragment {
         fechaNacimientoEditText = view.findViewById(R.id.fechaNacimientoEditText);
         btnEditarInfo = view.findViewById(R.id.btnEditarInfo);
         uidTextView = view.findViewById(R.id.uidTextView);
+        btnObtenerUbicacion = view.findViewById(R.id.btnObtenerUbicacion);
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -58,18 +73,17 @@ public class InfoFragment extends Fragment {
                         nombreEditText.setText(nombre);
                         fechaNacimientoEditText.setText(fechaNacimiento);
 
-                        uidTextView.setText("UID del usuario: " + userId); // Mostrar el UID del usuario actual en el TextView
+                        uidTextView.setText("UID del usuario: " + userId);
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // Manejar caso de error de lectura de datos
+                    Toast.makeText(requireContext(), "Error al leer datos de Firebase", Toast.LENGTH_SHORT).show();
                 }
             });
         }
 
-        // Agregar OnClickListener al TextView para copiar el UID al portapapeles
         uidTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,18 +94,46 @@ public class InfoFragment extends Fragment {
         btnEditarInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Obtener los valores editados
                 String nuevoNombre = nombreEditText.getText().toString();
                 String nuevaFechaNacimiento = fechaNacimientoEditText.getText().toString();
 
-                // Actualizar la información en Firebase
                 userDataRef.child("name").setValue(nuevoNombre);
                 userDataRef.child("dateOfBirth").setValue(nuevaFechaNacimiento);
 
-                // Mostrar un mensaje o realizar alguna acción adicional
                 Toast.makeText(requireContext(), "Información actualizada en Firebase", Toast.LENGTH_SHORT).show();
             }
         });
+
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            locationRef = FirebaseDatabase.getInstance().getReference().child("users").child("userData").child(userId).child("location");
+        }
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult != null) {
+                    Location location = locationResult.getLastLocation();
+                    if (location != null) {
+                        double latitude = location.getLatitude();
+                        double longitude = location.getLongitude();
+
+                        enviarUbicacionFirebase(latitude, longitude);
+                    }
+                }
+            }
+        };
+
+        btnObtenerUbicacion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                obtenerUbicacionActual();
+            }
+        });
+
         return view;
     }
 
@@ -105,5 +147,28 @@ public class InfoFragment extends Fragment {
                 Toast.makeText(requireContext(), "UID copiado al portapapeles", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void obtenerUbicacionActual() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        } else {
+            LocationRequest locationRequest = LocationRequest.create();
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+        }
+    }
+
+    private void enviarUbicacionFirebase(double latitude, double longitude) {
+        locationRef.child("latitude").setValue(latitude);
+        locationRef.child("longitude").setValue(longitude);
+
+        Toast.makeText(requireContext(), "Ubicación enviada a Firebase", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 }

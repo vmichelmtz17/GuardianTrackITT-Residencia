@@ -1,19 +1,20 @@
 package com.residencia.guardiantrackitt;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -21,76 +22,78 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class Ubicacion extends AppCompatActivity implements OnMapReadyCallback {
+public class Ubicacion extends FragmentActivity implements OnMapReadyCallback {
 
-    private static final int PERMISSIONS_REQUEST_LOCATION = 1;
+    private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
-    private TextView textViewLongitude;
-    private TextView textViewLatitude;
-    private GoogleMap googleMap;
+    private LocationCallback locationCallback;
+    private LocationRequest locationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ubicacion);
 
-        textViewLongitude = findViewById(R.id.textViewLongitudee);
-        textViewLatitude = findViewById(R.id.textViewLatitudee);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.mapFragment);
+        mapFragment.getMapAsync(this);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(this);
-        }
+        locationRequest = LocationRequest.create();
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(5000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            obtenerUbicacion();
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_LOCATION);
-        }
-    }
-
-    private void obtenerUbicacion() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
-                if (location != null) {
-                    double latitude = location.getLatitude();
-                    double longitude = location.getLongitude();
-
-                    textViewLongitude.setText("Longitud: " + longitude);
-                    textViewLatitude.setText("Latitud: " + latitude);
-
-                    if (googleMap != null) {
-                        LatLng latLng = new LatLng(latitude, longitude);
-                        googleMap.addMarker(new MarkerOptions().position(latLng));
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-                    }
-                } else {
-                    Toast.makeText(Ubicacion.this, "No se pudo obtener la ubicación", Toast.LENGTH_SHORT).show();
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
                 }
-            });
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_LOCATION);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == PERMISSIONS_REQUEST_LOCATION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                obtenerUbicacion();
-            } else {
-                Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
+                for (Location location : locationResult.getLocations()) {
+                    mostrarUbicacionEnMapa(location.getLatitude(), location.getLongitude());
+                }
             }
+        };
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }
     }
 
     @Override
-    public void onMapReady(GoogleMap map) {
-        googleMap = map;
-        googleMap.getUiSettings().setZoomControlsEnabled(true);
+    protected void onResume() {
+        super.onResume();
+        startLocationUpdates();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdates();
+    }
+
+    private void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+        }
+    }
+
+    private void stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
+
+    private void mostrarUbicacionEnMapa(double latitud, double longitud) {
+        LatLng ubicacion = new LatLng(latitud, longitud);
+        mMap.addMarker(new MarkerOptions().position(ubicacion).title("Ubicación del Paciente"));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ubicacion, 15.0f));
     }
 }
