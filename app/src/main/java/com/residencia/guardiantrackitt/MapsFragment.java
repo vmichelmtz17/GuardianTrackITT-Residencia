@@ -1,6 +1,7 @@
 package com.residencia.guardiantrackitt;
 
 import android.Manifest;
+import com.google.firebase.auth.FirebaseAuth;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,6 +39,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -63,13 +66,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private static final String SHARED_PREFS_KEY = "com.residencia.guardiantrackitt.SHARED_PREFS";
     private static final String HOME_LATITUDE_KEY = "HOME_LATITUDE";
     private static final String HOME_LONGITUDE_KEY = "HOME_LONGITUDE";
-
+    private FirebaseAuth mAuth;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_maps, container, false);
         addHomeButton = view.findViewById(R.id.addHomeButton);
         navigateButton = view.findViewById(R.id.navigateButton);
+        mAuth = FirebaseAuth.getInstance();
         return view;
     }
     @Override
@@ -103,7 +107,42 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         googleMap = map;
         enableMyLocation();
         setCurrentLocation();
+
+        // Cargamos la ubicación del hogar solo si existe una ubicación guardada
+        if (sharedPreferences.contains(HOME_LATITUDE_KEY) && sharedPreferences.contains(HOME_LONGITUDE_KEY)) {
+            loadHomeLocation();
+        }
     }
+
+    private void loadHomeLocation() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String uid = currentUser.getUid();
+            DatabaseReference userLocationRef = databaseReference.child(uid);
+
+            userLocationRef.get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+                @Override
+                public void onSuccess(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        double latitude = dataSnapshot.child("latitude").getValue(Double.class);
+                        double longitude = dataSnapshot.child("longitude").getValue(Double.class);
+                        LatLng homeLocation = new LatLng(latitude, longitude);
+                        if (homeMarker != null) {
+                            homeMarker.remove();
+                        }
+                        homeMarker = googleMap.addMarker(new MarkerOptions().position(homeLocation).title("Home"));
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLocation, 15f));
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(requireContext(), "Error al cargar la ubicación del hogar", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
 
     private void enableMyLocation() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -184,23 +223,29 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void sendLocationToFirebase(LatLng location) {
-        // Crear un objeto UbicacionActual para representar la ubicación actual
-        UbicacionActual ubicacionActual = new UbicacionActual(location.latitude, location.longitude);
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String uid = currentUser.getUid();
+            DatabaseReference userLocationRef = databaseReference.child(uid);
 
-        // Enviar la ubicación actual a Firebase Realtime Database
-        databaseReference.setValue(ubicacionActual)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(requireContext(), "Ubicación actual enviada a Firebase", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(requireContext(), "Error al enviar la ubicación a Firebase", Toast.LENGTH_SHORT).show();
-                    }
-                });
+            // Crear un objeto UbicacionActual para representar la ubicación actual
+            UbicacionActual ubicacionActual = new UbicacionActual(location.latitude, location.longitude);
+
+            // Enviar la ubicación actual a Firebase Realtime Database en la subruta del usuario actual
+            userLocationRef.setValue(ubicacionActual)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(requireContext(), "Ubicación actual enviada a Firebase", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(requireContext(), "Error al enviar la ubicación a Firebase", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
     }
 
     private void startLocationUpdates() {
