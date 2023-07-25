@@ -94,8 +94,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         googleMap = map;
         enableMyLocation();
         setCurrentLocation();
-        loadHomeLocation();
     }
+
 
     private void enableMyLocation() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
