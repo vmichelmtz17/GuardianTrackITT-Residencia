@@ -27,6 +27,9 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -35,7 +38,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -47,6 +53,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private FusedLocationProviderClient fusedLocationClient;
     private LatLng currentLocation;
     private SharedPreferences sharedPreferences;
+    private DatabaseReference databaseReference;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
 
     private Button addHomeButton;
     private Button navigateButton;
@@ -63,7 +72,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         navigateButton = view.findViewById(R.id.navigateButton);
         return view;
     }
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -73,6 +81,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         sharedPreferences = requireContext().getSharedPreferences(SHARED_PREFS_KEY, Context.MODE_PRIVATE);
+        databaseReference = FirebaseDatabase.getInstance().getReference("ubicacion_actual");
 
         addHomeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,7 +105,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         setCurrentLocation();
     }
 
-
     private void enableMyLocation() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -115,6 +123,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         if (location != null) {
                             currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
                             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f));
+                            updateCurrentLocationInFirebase(currentLocation);
+                            startLocationUpdates();
                         }
                     });
         }
@@ -168,18 +178,90 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         editor.putFloat(HOME_LATITUDE_KEY, (float) homeLocation.latitude);
         editor.putFloat(HOME_LONGITUDE_KEY, (float) homeLocation.longitude);
         editor.apply();
+
+        // Enviar la ubicación actual a Firebase Realtime Database
+        sendLocationToFirebase(homeLocation);
     }
 
-    private void loadHomeLocation() {
-        if (sharedPreferences.contains(HOME_LATITUDE_KEY) && sharedPreferences.contains(HOME_LONGITUDE_KEY)) {
-            float latitude = sharedPreferences.getFloat(HOME_LATITUDE_KEY, 0f);
-            float longitude = sharedPreferences.getFloat(HOME_LONGITUDE_KEY, 0f);
-            LatLng homeLocation = new LatLng(latitude, longitude);
-            if (homeMarker != null) {
-                homeMarker.remove();
+    private void sendLocationToFirebase(LatLng location) {
+        // Crear un objeto UbicacionActual para representar la ubicación actual
+        UbicacionActual ubicacionActual = new UbicacionActual(location.latitude, location.longitude);
+
+        // Enviar la ubicación actual a Firebase Realtime Database
+        databaseReference.setValue(ubicacionActual)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(requireContext(), "Ubicación actual enviada a Firebase", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(requireContext(), "Error al enviar la ubicación a Firebase", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void startLocationUpdates() {
+        locationRequest = LocationRequest.create();
+        locationRequest.setInterval(5000); // Intervalo de actualización de ubicación en milisegundos (5 segundos)
+        locationRequest.setFastestInterval(3000); // Intervalo de actualización más rápido en milisegundos (3 segundos)
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult != null) {
+                    Location lastLocation = locationResult.getLastLocation();
+                    currentLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+                    updateCurrentLocationInFirebase(currentLocation);
+                }
             }
-            homeMarker = googleMap.addMarker(new MarkerOptions().position(homeLocation).title("Home"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLocation, 15f));
+        };
+
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+        } else {
+            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    3);
+        }
+    }
+
+    private void stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        startLocationUpdates();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopLocationUpdates();
+    }
+
+    private void updateCurrentLocationInFirebase(LatLng location) {
+        if (databaseReference != null) {
+            UbicacionActual ubicacionActual = new UbicacionActual(location.latitude, location.longitude);
+            databaseReference.setValue(ubicacionActual)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            // La ubicación actual se actualizó en Firebase con éxito
+                            // Puedes agregar cualquier lógica adicional si es necesario
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(requireContext(), "Error al enviar la ubicación a Firebase", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         }
     }
 
