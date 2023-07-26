@@ -127,15 +127,20 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 @Override
                 public void onSuccess(DataSnapshot dataSnapshot) {
                     for (DataSnapshot pacienteSnapshot : dataSnapshot.getChildren()) {
-                        double latitude = pacienteSnapshot.child("ubicacion_actual").child("latitude").getValue(Double.class);
-                        double longitude = pacienteSnapshot.child("ubicacion_actual").child("longitude").getValue(Double.class);
-                        LatLng homeLocation = new LatLng(latitude, longitude);
-                        if (homeMarker != null) {
-                            homeMarker.remove();
+                        DataSnapshot ubicacionActualSnapshot = pacienteSnapshot.child("ubicacion_actual");
+                        Double latitude = ubicacionActualSnapshot.child("latitude").getValue(Double.class);
+                        Double longitude = ubicacionActualSnapshot.child("longitude").getValue(Double.class);
+                        if (latitude != null && longitude != null) {
+                            LatLng homeLocation = new LatLng(latitude, longitude);
+                            if (homeMarker != null) {
+                                homeMarker.remove();
+                            }
+                            homeMarker = googleMap.addMarker(new MarkerOptions().position(homeLocation).title("Home"));
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLocation, 15f));
+                            break; // Mostrar solo la ubicación del primer paciente (puedes modificar esto si necesitas mostrar múltiples ubicaciones).
+                        } else {
+                            Toast.makeText(requireContext(), "Error: Datos de ubicación del hogar no disponibles", Toast.LENGTH_SHORT).show();
                         }
-                        homeMarker = googleMap.addMarker(new MarkerOptions().position(homeLocation).title("Home"));
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLocation, 15f));
-                        break; // Mostrar solo la ubicación del primer paciente (puedes modificar esto si necesitas mostrar múltiples ubicaciones).
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
