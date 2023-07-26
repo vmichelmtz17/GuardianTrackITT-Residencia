@@ -82,7 +82,7 @@
             android:label="Vincular Paciente" />
         <activity
             android:name=".FullScreenImageActivity"
-            android:label="Full Screen Image"></activity>
+            android:label="Full Screen Image" />
 
         <service
             android:name="com.google.firebase.components.ComponentDiscoveryService"
