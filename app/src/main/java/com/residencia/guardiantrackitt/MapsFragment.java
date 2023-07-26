@@ -235,7 +235,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         if (currentUser != null) {
             String uid = currentUser.getUid();
             DatabaseReference userLocationRef = databaseReference.child("userType")
-                    .child("Familiar").child(uid).child("ubicacion_actual");
+                    .child("Familiar").child(uid).child("pacientes").child("ubicacion_actual");
 
             // Crear un objeto UbicacionActual para representar la ubicación actual
             UbicacionActual ubicacionActual = new UbicacionActual(location.latitude, location.longitude);
@@ -262,7 +262,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         if (currentUser != null) {
             String uid = currentUser.getUid();
             DatabaseReference userLocationRef = databaseReference.child("userType")
-                    .child("Familiar").child(uid).child("ubicacion_actual");
+                    .child("Familiar").child(uid).child("pacientes").child("ubicacion_actual");
 
             // Crear un objeto UbicacionActual para representar la ubicación actual
             UbicacionActual ubicacionActual = new UbicacionActual(location.latitude, location.longitude);
