@@ -1,11 +1,9 @@
 package com.residencia.guardiantrackitt;
 
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
-
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -23,6 +21,7 @@ public class Ubicacion extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private DatabaseReference locationRef;
+    private String idPaciente; // Reemplaza esta variable con el UID del paciente que deseas mostrar
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,15 +33,16 @@ public class Ubicacion extends FragmentActivity implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
 
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        locationRef = FirebaseDatabase.getInstance().getReference()
-                .child("users").child("userData").child(userId).child("location");
+        DatabaseReference usuariosRef = FirebaseDatabase.getInstance().getReference().child("users");
+        locationRef = usuariosRef.child("ubicacion_actual");
+        idPaciente = "ID_PACIENTE"; // Reemplaza "ID_PACIENTE" con el UID del paciente que deseas mostrar
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        locationRef.addChildEventListener(new ChildEventListener() {
+        locationRef.child(idPaciente).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 obtenerUbicacionDesdeFirebase(dataSnapshot);

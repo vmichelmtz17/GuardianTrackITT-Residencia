@@ -5,6 +5,9 @@
             android:id="@+id/menu_profile"
             android:title="Perfil" />
         <item
+            android:id="@+id/menu_paciente"
+            android:title="Paciente" />
+        <item
             android:id="@+id/menu_logout"
             android:title="Cerrar Sesión" />
     </group>

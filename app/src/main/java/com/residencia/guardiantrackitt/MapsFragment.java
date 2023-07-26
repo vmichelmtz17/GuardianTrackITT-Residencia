@@ -67,6 +67,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private static final String HOME_LATITUDE_KEY = "HOME_LATITUDE";
     private static final String HOME_LONGITUDE_KEY = "HOME_LONGITUDE";
     private FirebaseAuth mAuth;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -76,6 +77,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mAuth = FirebaseAuth.getInstance();
         return view;
     }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -85,7 +87,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         sharedPreferences = requireContext().getSharedPreferences(SHARED_PREFS_KEY, Context.MODE_PRIVATE);
-        databaseReference = FirebaseDatabase.getInstance().getReference("ubicacion_actual");
+        databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
         addHomeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,20 +120,22 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             String uid = currentUser.getUid();
-            DatabaseReference userLocationRef = databaseReference.child(uid);
+            DatabaseReference userLocationRef = databaseReference.child("userType")
+                    .child("Familiar").child(uid).child("pacientes");
 
             userLocationRef.get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
                 @Override
                 public void onSuccess(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        double latitude = dataSnapshot.child("latitude").getValue(Double.class);
-                        double longitude = dataSnapshot.child("longitude").getValue(Double.class);
+                    for (DataSnapshot pacienteSnapshot : dataSnapshot.getChildren()) {
+                        double latitude = pacienteSnapshot.child("ubicacion_actual").child("latitude").getValue(Double.class);
+                        double longitude = pacienteSnapshot.child("ubicacion_actual").child("longitude").getValue(Double.class);
                         LatLng homeLocation = new LatLng(latitude, longitude);
                         if (homeMarker != null) {
                             homeMarker.remove();
                         }
                         homeMarker = googleMap.addMarker(new MarkerOptions().position(homeLocation).title("Home"));
                         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLocation, 15f));
+                        break; // Mostrar solo la ubicación del primer paciente (puedes modificar esto si necesitas mostrar múltiples ubicaciones).
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -142,7 +146,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             });
         }
     }
-
 
     private void enableMyLocation() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -226,7 +229,35 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             String uid = currentUser.getUid();
-            DatabaseReference userLocationRef = databaseReference.child(uid);
+            DatabaseReference userLocationRef = databaseReference.child("userType")
+                    .child("Familiar").child(uid).child("ubicacion_actual");
+
+            // Crear un objeto UbicacionActual para representar la ubicación actual
+            UbicacionActual ubicacionActual = new UbicacionActual(location.latitude, location.longitude);
+
+            // Enviar la ubicación actual a Firebase Realtime Database en la subruta del usuario actual
+            userLocationRef.setValue(ubicacionActual)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(requireContext(), "Ubicación actual enviada a Firebase", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(requireContext(), "Error al enviar la ubicación a Firebase", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
+
+    private void updateCurrentLocationInFirebase(LatLng location) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String uid = currentUser.getUid();
+            DatabaseReference userLocationRef = databaseReference.child("userType")
+                    .child("Familiar").child(uid).child("ubicacion_actual");
 
             // Crear un objeto UbicacionActual para representar la ubicación actual
             UbicacionActual ubicacionActual = new UbicacionActual(location.latitude, location.longitude);
@@ -265,6 +296,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             }
         };
 
+
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
@@ -288,26 +320,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public void onPause() {
         super.onPause();
         stopLocationUpdates();
-    }
-
-    private void updateCurrentLocationInFirebase(LatLng location) {
-        if (databaseReference != null) {
-            UbicacionActual ubicacionActual = new UbicacionActual(location.latitude, location.longitude);
-            databaseReference.setValue(ubicacionActual)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            // La ubicación actual se actualizó en Firebase con éxito
-                            // Puedes agregar cualquier lógica adicional si es necesario
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(requireContext(), "Error al enviar la ubicación a Firebase", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }
     }
 
     private void editHomeLocation() {

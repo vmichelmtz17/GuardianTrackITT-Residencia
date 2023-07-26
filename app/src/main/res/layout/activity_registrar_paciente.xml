@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".RegistrarPaciente">
+
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="REGISTRAR PACIENTE"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#FFA500" />
+
+    <EditText
+        android:id="@+id/pacienteNameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nombre del Paciente"
+        android:padding="12dp" />
+
+    <EditText
+        android:id="@+id/pacienteAgeEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Edad del Paciente"
+        android:inputType="number"
+        android:padding="12dp" />
+
+    <Button
+        android:id="@+id/registrarPacienteButton"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:text="Registrar Paciente"
+        android:backgroundTint="#b1accc"
+        style="@style/MinimalButtonStyle" />
+
+</LinearLayout>

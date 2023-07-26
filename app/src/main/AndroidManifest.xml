@@ -20,6 +20,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".RegistrarPaciente"
+            android:exported="false" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBPH7rtcBm1rjzlbRNn_Fw0nXUIoHLLHnk" />
@@ -77,9 +81,8 @@
             android:exported="false"
             android:label="Vincular Paciente" />
         <activity
-            android:name="com.residencia.guardiantrackitt.FullScreenImageActivity"
-            android:label="Full Screen Image">
-        </activity>
+            android:name=".FullScreenImageActivity"
+            android:label="Full Screen Image"></activity>
 
         <service
             android:name="com.google.firebase.components.ComponentDiscoveryService"

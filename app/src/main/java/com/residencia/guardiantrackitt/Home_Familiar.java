@@ -138,6 +138,10 @@ public class Home_Familiar extends AppCompatActivity implements NavigationView.O
                 Intent profileIntent = new Intent(Home_Familiar.this, Perfil.class);
                 startActivity(profileIntent);
                 return true;
+            case R.id.menu_paciente:
+                Intent pacienteIntent = new Intent(Home_Familiar.this, Paciente.class);
+                startActivity(pacienteIntent);
+                return true;
             case R.id.menu_logout:
                 // Cerrar sesión y redirigir a la actividad de inicio de sesión
                 FirebaseAuth.getInstance().signOut();
@@ -149,6 +153,7 @@ public class Home_Familiar extends AppCompatActivity implements NavigationView.O
                 return false;
         }
     }
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {

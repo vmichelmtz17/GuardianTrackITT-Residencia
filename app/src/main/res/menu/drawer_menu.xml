@@ -2,9 +2,12 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/menu_profile"
-            android:title="Perfil" />
+            android:title="Mi perfil" />
+        <item
+            android:id="@+id/menu_paciente"
+            android:title="Paciente" />
         <item
             android:id="@+id/menu_logout"
-            android:title="Cerrar Sesión" />
+            android:title="Cerrar sesión" />
     </group>
 </menu>
