@@ -286,8 +286,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private void startLocationUpdates() {
         locationRequest = LocationRequest.create();
-        locationRequest.setInterval(5000); // Intervalo de actualización de ubicación en milisegundos (5 segundos)
-        locationRequest.setFastestInterval(3000); // Intervalo de actualización más rápido en milisegundos (3 segundos)
+        locationRequest.setInterval(60000); // Intervalo de actualización de ubicación en milisegundos (5 segundos)
+        locationRequest.setFastestInterval(55000); // Intervalo de actualización más rápido en milisegundos (3 segundos)
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         locationCallback = new LocationCallback() {
