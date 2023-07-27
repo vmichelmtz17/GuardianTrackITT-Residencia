@@ -23,6 +23,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -312,20 +313,48 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback);
+        if (fusedLocationClient != null && locationCallback != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
+    }
+    private void startLocationUpdatesIfNotInUbicacionActivity() {
+        if (!isUserInUbicacionActivity()) {
+            startLocationUpdates();
+        }
+    }
+
+    private void stopLocationUpdatesIfInUbicacionActivity() {
+        if (isUserInUbicacionActivity()) {
+            stopLocationUpdates();
+        }
+    }
+
+    private boolean isUserInUbicacionActivity() {
+        AppCompatActivity activity = (AppCompatActivity) requireContext();
+        return activity instanceof Ubicacion;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        startLocationUpdates();
+        if (!isUserInHomeFamiliarActivity()) {
+            startLocationUpdates();
+        }
+        startLocationUpdatesIfNotInUbicacionActivity();
+    }
+
+    private boolean isUserInHomeFamiliarActivity() {
+        AppCompatActivity activity = (AppCompatActivity) requireContext();
+        return activity instanceof Home_Familiar;
     }
 
     @Override
     public void onPause() {
         super.onPause();
         stopLocationUpdates();
+        stopLocationUpdatesIfInUbicacionActivity();
     }
+
 
     private void editHomeLocation() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
@@ -352,7 +381,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         });
         builder.show();
     }
-
     private void showEditHomeLocationDialog() {
         // Aquí puedes implementar la lógica para permitir al usuario editar la ubicación del hogar
         // por ejemplo, mostrar un diálogo con un formulario para ingresar una nueva dirección
