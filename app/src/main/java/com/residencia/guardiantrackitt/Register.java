@@ -1,6 +1,8 @@
 package com.residencia.guardiantrackitt;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -8,9 +10,11 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -54,6 +58,13 @@ public class Register extends AppCompatActivity {
         phoneEditText = findViewById(R.id.phoneEditText);
         registerButton = findViewById(R.id.registerButton);
         showPasswordCheckbox = findViewById(R.id.showPasswordCheckbox);
+        ImageButton passwordInfoButton = findViewById(R.id.passwordInfoButton);
+        passwordInfoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPasswordFormatDialog();
+            }
+        });
 
         showPasswordCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -83,6 +94,30 @@ public class Register extends AppCompatActivity {
                 }
             }
         });
+    }
+    private void showPasswordFormatDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Formato de Contraseña");
+        builder.setMessage("La contraseña debe cumplir los siguientes requisitos:\n" +
+                " - Mínimo 6 caracteres\n" +
+                " - Mínimo 1 mayúscula\n" +
+                " - Mínimo 1 minúscula\n" +
+                " - Mínimo 1 número");
+        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(Color.parseColor("#FFA500"));
+            }
+        });
+
+        alertDialog.show();
     }
 
     private void togglePasswordVisibility(boolean showPassword) {
