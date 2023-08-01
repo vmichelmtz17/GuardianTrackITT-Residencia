@@ -9,9 +9,13 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
     <application
         android:allowBackup="true"
@@ -21,8 +25,20 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".Pulsos"
+            android:exported="false" />
+        <activity
+            android:name=".RegistroPulsaciones"
+            android:exported="false" />
+        <activity
+            android:name=".Notificaciones"
+            android:exported="false" />
+        <activity
             android:name=".RegistrarPaciente"
             android:exported="false" />
+        <activity
+            android:name=".PulsacionesLista"
+            android:label="Pulsaciones Lista" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -92,6 +108,12 @@
                 android:name="com.google.firebase.components:com.google.firebase.storage.StorageRegistrar"
                 android:value="com.google.firebase.components.ComponentRegistrar" />
         </service>
+
+        <receiver android:name=".GeofenceBroadcastReceiver" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="GeofenceNotificationChannel" />
     </application>
 
 </manifest>

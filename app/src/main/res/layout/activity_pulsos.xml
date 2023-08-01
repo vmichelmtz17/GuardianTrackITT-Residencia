@@ -1,0 +1,25 @@
+<!-- activity_pulsos.xml -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- TextView para mostrar el valor de pulsaciones en la parte superior central -->
+    <TextView
+        android:id="@+id/txtPulsaciones"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="16dp"
+        android:text="Pulsaciones: "
+        android:textColor="@android:color/black"
+        android:textSize="24sp" />
+
+    <!-- ListView para mostrar la lista de pulsaciones -->
+    <ListView
+        android:id="@+id/pulsacionesListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/txtPulsaciones"
+        android:layout_marginTop="16dp" />
+
+</RelativeLayout>
