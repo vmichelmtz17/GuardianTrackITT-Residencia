@@ -1,4 +1,3 @@
-
 package com.residencia.guardiantrackitt;
 
 import androidx.annotation.NonNull;
@@ -8,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -18,10 +18,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.ingenieriajhr.blujhr.BluJhr;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 
 public class Pulsaciones extends AppCompatActivity {
 
@@ -33,6 +37,7 @@ public class Pulsaciones extends AppCompatActivity {
     Button buttonSend;
     TextView consola;
     EditText edtTx;
+    private DatabaseReference pulsacionesRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,14 +104,22 @@ public class Pulsaciones extends AppCompatActivity {
     }
 
     private void rxReceived() {
-
         blue.loadDateRx(new BluJhr.ReceivedData() {
             @Override
             public void rxDate(@NonNull String s) {
-                consola.setText(consola.getText().toString()+s);
+                consola.setText(consola.getText().toString() + s);
+
+                // Aquí obtenemos el UID del usuario actualmente autenticado (familiar)
+                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                // Creamos la referencia a la ubicación correcta en Firebase Realtime Database
+                DatabaseReference pulsacionesRef = FirebaseDatabase.getInstance()
+                        .getReference("users").child("userType").child("Familiar").child(uid).child("pacientes").child("Pulsaciones");
+
+                // Enviamos el valor de pulsaciones a la ubicación específica en Firebase Realtime Database
+                pulsacionesRef.setValue(s);
             }
         });
-
     }
 
 
